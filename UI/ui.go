@@ -1,8 +1,12 @@
 package ui
 
+// https://github.com/rivo/tview/wiki
+
 import (
 	udp "FinsEmu/UDP"
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -130,7 +134,14 @@ func (self *EmuUI) MakeMainFrame() {
 	self.main_frame.AddItem(self.log_view, 0, 1, 4, 1, 0, 0, true)
 }
 
+var (
+	visible_text bool
+)
+
 func (self *EmuUI) MakeHeadFrame() {
+	set_text := tview.NewTextView()
+	set_text.SetText("")
+
 	self.AddresViewS.set_addr_button.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		self.FocusEvent(event)
 
@@ -142,8 +153,23 @@ func (self *EmuUI) MakeHeadFrame() {
 		port := self.AddresViewS.port_IF.GetLabel()
 		p, _ := strconv.Atoi(port)
 		self.SetAddress(addr, p)
+		visible_text = true
 
 	})
+
+	go func() {
+		for {
+			if visible_text {
+				self.app.QueueUpdateDraw(func() {
+					set_text.SetText(fmt.Sprintf(time.Now().Format("")))
+					time.Sleep(time.Second * 1)
+					set_text.SetText("")
+					visible_text = false
+				})
+			}
+			time.Sleep(time.Millisecond * 500)
+		}
+	}()
 
 	field_width := 30
 
@@ -185,6 +211,7 @@ func (self *EmuUI) MakeHeadFrame() {
 
 	self.head.
 		AddItem(self.address_view, 0, 0, 1, 4, 0, 0, true).
+		AddItem(set_text, 1, 2, 1, 1, 0, 0, false).
 		AddItem(self.AddresViewS.set_addr_button, 1, 3, 1, 1, 0, 0, true)
 
 }
