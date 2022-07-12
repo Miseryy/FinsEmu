@@ -2,7 +2,10 @@ module FinsEmu
 
 go 1.18
 
-require github.com/rivo/tview v0.0.0-20220709181631-73bf2902b59a
+require (
+	github.com/gdamore/tcell v1.4.0
+	github.com/rivo/tview v0.0.0-20220709181631-73bf2902b59a
+)
 
 require (
 	github.com/gdamore/encoding v1.0.0 // indirect

@@ -7,15 +7,15 @@ type Udp_Sock struct {
 	udpLn   *net.UDPConn
 }
 
-func New(ip_addr string, port int) *Udp_Sock {
-	t := &Udp_Sock{
-		udpAddr: &net.UDPAddr{
-			IP:   net.ParseIP(ip_addr),
-			Port: port,
-		},
-	}
+func New() *Udp_Sock {
+	return &Udp_Sock{}
+}
 
-	return t
+func (ud *Udp_Sock) SetAddr(ip_addr string, port int) {
+	ud.udpAddr = &net.UDPAddr{
+		IP:   net.ParseIP(ip_addr),
+		Port: port,
+	}
 }
 
 func (ud *Udp_Sock) Listen() error {
