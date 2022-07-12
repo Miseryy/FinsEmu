@@ -2,7 +2,7 @@ package ui
 
 import (
 	udp "FinsEmu/UDP"
-	"bytes"
+	"strconv"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -16,10 +16,13 @@ type EmuUI struct {
 	left         *tview.Grid
 	address_view *tview.Grid
 
-	address_IF *tview.InputField
-	port_IF    *tview.InputField
+	address_IF      *tview.InputField
+	port_IF         *tview.InputField
+	set_addr_button *tview.Button
 
 	udp_soc *udp.Udp_Sock
+
+	elements []tview.Primitive
 }
 
 func New() *EmuUI {
@@ -31,11 +34,18 @@ func New() *EmuUI {
 		address_view: tview.NewGrid(),
 		udp_soc:      udp.New(),
 
-		address_IF: tview.NewInputField(),
-		port_IF:    tview.NewInputField(),
+		address_IF:      tview.NewInputField(),
+		port_IF:         tview.NewInputField(),
+		set_addr_button: tview.NewButton("Set"),
 	}
 
 	u := eui
+	u.elements = []tview.Primitive{
+		u.address_IF,
+		u.port_IF,
+		u.set_addr_button,
+	}
+
 	u.MakeHeadFrame()
 	u.MakeLeftFrame()
 	u.MakeMainFrame()
@@ -47,53 +57,119 @@ func (ui *EmuUI) SetAddress(addr string, port int) {
 	ui.udp_soc.SetAddr(addr, port)
 }
 
-func (ui *EmuUI) MakeMainFrame() {
-	ui.main_frame.SetRows(0, 0, 0, 0, 0, 0).SetColumns(0, 0, 0).SetBorders(true)
-	ui.main_frame.SetBackgroundColor(tcell.ColorWhite)
-	ui.main_frame.AddItem(ui.head, 0, 0, 1, 1, 0, 0, true)
-	ui.main_frame.AddItem(ui.left, 1, 0, 2, 1, 0, 0, true)
+func (ui *EmuUI) Focus(reverse bool) {
+	max := len(ui.elements)
+	for i, el := range ui.elements {
+		if !el.HasFocus() {
+			continue
+		}
+
+		if reverse {
+			i = i - 1
+			if i < 0 {
+				i = max - 1
+			}
+		} else {
+			i = i + 1
+			i = i % max
+		}
+
+		ui.app.SetFocus(ui.elements[i])
+		return
+	}
+
+	ui.app.SetFocus(ui.elements[0])
+}
+
+func (ui *EmuUI) FocusEvent(event *tcell.EventKey) {
+	switch event.Key() {
+	case tcell.KeyCtrlN:
+		ui.Focus(false)
+	case tcell.KeyCtrlP:
+		ui.Focus(true)
+
+	}
 
 }
 
+func (ui *EmuUI) MakeMainFrame() {
+	ui.main_frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyCtrlA:
+			ui.app.SetFocus(ui.head)
+
+		}
+
+		return event
+	})
+
+	ui.main_frame.SetRows(0, 0, 0, 0, 0, 0, 0).SetColumns(0, 0, 0, 0, 0, 0).SetBorders(true)
+	// ui.main_frame.SetBackgroundColor(tcell.ColorWhite)
+	ui.main_frame.AddItem(ui.head, 0, 0, 3, 2, 0, 0, true)
+	ui.main_frame.AddItem(ui.left, 3, 0, 2, 1, 0, 0, true)
+}
+
 func (ui *EmuUI) MakeHeadFrame() {
-	change_addr_button := tview.NewButton("ChangeAddress")
-	change_addr_button.SetBorder(true).SetBackgroundColor(tcell.ColorBlue)
-	change_addr_button.SetSelectedFunc(func() { /*to change view*/ })
+	ui.set_addr_button.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		ui.FocusEvent(event)
+
+		return event
+	})
+
+	ui.set_addr_button.SetSelectedFunc(func() {
+		addr := ui.address_IF.GetLabel()
+		port := ui.port_IF.GetLabel()
+		p, _ := strconv.Atoi(port)
+		ui.SetAddress(addr, p)
+
+	})
+
+	field_width := 30
 
 	ui.address_IF.
 		SetLabel("Address:").
-		SetFieldWidth(10).
+		SetFieldWidth(field_width).
 		SetDoneFunc(func(key tcell.Key) {
-			// fmt.Println(key)
-			ui.app.SetFocus(ui.port_IF)
+			ui.Focus(false)
 
+		}).
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			ui.FocusEvent(event)
+
+			return event
 		})
 
 	ui.port_IF.
 		SetLabel("Port   :").
-		SetFieldWidth(10).
+		SetFieldWidth(field_width).
 		SetAcceptanceFunc(tview.InputFieldInteger).
 		SetDoneFunc(func(key tcell.Key) {
-			// fmt.Println(key)
-			ui.app.SetFocus(ui.left)
+			ui.Focus(false)
 
+		}).
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			ui.FocusEvent(event)
+
+			return event
 		})
 
 	ui.address_view.SetBackgroundColor(tcell.ColorBlack)
+	ui.head.SetBorder(true).SetTitle("<A>")
 
 	ui.address_view.SetRows(0, 0).SetColumns(0, 0)
 	ui.address_view.AddItem(ui.address_IF, 0, 0, 1, 2, 0, 0, true)
 	ui.address_view.AddItem(ui.port_IF, 1, 0, 1, 2, 0, 0, true)
 
-	ui.head.SetRows(0, 0).SetColumns(0)
+	ui.head.SetRows(0, 0, 0, 0).SetColumns(0, 0)
 
 	ui.head.
-		AddItem(ui.address_view, 0, 0, 2, 2, 0, 0, true)
+		AddItem(ui.address_view, 0, 0, 3, 2, 0, 0, true).
+		AddItem(ui.set_addr_button, 3, 0, 1, 1, 0, 0, true)
 
 }
 
 func (ui *EmuUI) MakeLeftFrame() {
-	change_addr_button := tview.NewButton("ChangeAddress")
+	change_addr_button := tview.NewButton("")
 	change_addr_button.SetBorder(true).SetBackgroundColor(tcell.ColorBlue)
 	change_addr_button.SetSelectedFunc(func() { /*to change view*/ })
 
@@ -105,35 +181,6 @@ func (ui *EmuUI) MakeLeftFrame() {
 
 func (ui *EmuUI) RunApp() {
 	if err := ui.app.SetRoot(ui.main_frame, true).EnableMouse(true).Run(); err != nil {
-		panic(err)
-	}
-
-}
-
-func Test() {
-	text := tview.NewTextView()
-	text.SetText("test")
-	text.SetTitle("Text").SetBorder(true)
-
-	text2 := tview.NewTextView()
-	text2.SetText(string(bytes.Repeat([]byte("sfasf"), 300)))
-	text2.SetTitle("Text2").SetBorder(true)
-	text2.SetFocusFunc(func() {
-
-	})
-
-	text3 := tview.NewTextView()
-	text3.SetText("test3")
-	text3.SetTitle("Text3").SetBorder(true)
-
-	main_flex := tview.NewFlex().SetDirection(tview.FlexColumn).
-		AddItem(text, 0, 1, false).
-		AddItem(text2, 0, 1, true).
-		AddItem(text3, 0, 1, false)
-	main_flex.SetTitle("main_flex").SetBorder(true)
-
-	app := tview.NewApplication()
-	if err := app.SetRoot(main_flex, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 
