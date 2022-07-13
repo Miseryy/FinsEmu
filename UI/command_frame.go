@@ -1,52 +1,54 @@
 package ui
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 type CommandFrame struct {
-	Frames *Frames
+	frames                   *Frames
+	change_add_form_callback func()
+	reset_log_callback       func()
+	connect_udp_callback     func()
+	close_udp_callback       func()
 }
 
 func NewCommandFrame(f *Frames) *CommandFrame {
 	return &CommandFrame{
-		Frames: f,
+		frames: f,
 	}
 }
 
 func (self *CommandFrame) MakeFrame() tview.Primitive {
 	command_main := tview.NewPages()
-	command_main.SetBorder(true).SetTitle("C<O>mmand")
-	reset_button := tview.NewButton("ResetLog")
-	reset_button.SetSelectedFunc(func() {
-		self.Frames.ResetLog()
-	})
+	command_main.SetBorder(true).SetTitle("Commands <S>")
 
-	main_util := tview.NewGrid()
-	main_util.SetRows(0, 0, 0, 0).SetColumns(0, 0, 0)
-	main_util.AddItem(reset_button, 4, 2, 1, 1, 0, 0, true)
+	main_commandlist_frame := tview.NewFlex().SetDirection(tview.FlexRow)
+	command_list := tview.NewList()
+	command_list.
+		AddItem("Add Data", "Add DM Data", 'a', func() {
+			self.change_add_form_callback()
+		}).
+		AddItem("Connect", "Connect UDP", 'c', func() {
+			self.connect_udp_callback()
 
-	g2 := tview.NewGrid()
-	g2.SetRows(0, 0, 0, 0).SetColumns(0, 0, 0)
-	g2.AddItem(reset_button, 3, 1, 1, 1, 0, 0, true)
-	command_main.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'A':
-				command_main.SwitchToPage("Main")
-			case 'C':
-				command_main.SwitchToPage("Main2")
-			}
-		}
+		}).
+		AddItem("Connect Close", "Close UDP", 'e', func() {
+			self.close_udp_callback()
 
-		return event
-	})
+		}).
+		AddItem("ResetLog", "", 'r', func() {
+			self.reset_log_callback()
+
+		}).
+		AddItem("Quit", "", 'q', func() {
+			self.frames.App.Stop()
+		})
+
+	main_commandlist_frame.
+		AddItem(command_list, 0, 1, true)
 
 	command_main.
-		AddPage("Main", main_util, true, true).
-		AddPage("Main2", g2, true, false)
+		AddPage("Main", main_commandlist_frame, true, true)
 
 	return command_main
 }

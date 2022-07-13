@@ -1,7 +1,6 @@
 package ui
 
 import (
-	udp "FinsEmu/UDP"
 	"fmt"
 	"strconv"
 
@@ -12,8 +11,9 @@ import (
 type AddressFrame struct {
 	AddressP       AddressViewPri
 	frames         *Frames
-	udp_soc        *udp.Udp_Sock
 	write_log_call func(string)
+	address        string
+	port           string
 }
 
 type AddressViewPri struct {
@@ -24,7 +24,6 @@ type AddressViewPri struct {
 
 func NewAddressFrame(f *Frames) *AddressFrame {
 	return &AddressFrame{
-		udp_soc: udp.New(),
 		AddressP: AddressViewPri{
 			address_IF:      tview.NewInputField(),
 			port_IF:         tview.NewInputField(),
@@ -93,12 +92,20 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 	address_form.AddInputField("Address", "", 40, nil, nil)
 	address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
 	address_form.AddButton("Set", func() {
+		if self.frames.Connected {
+			s := fmt.Sprintf("NowConnected\nAddress::%s\nPort::%s\n", self.address, self.port)
+			self.write_log_call(s)
+
+			return
+		}
 		addr := address_form.GetFormItem(0).(*tview.InputField).GetText()
 		port := address_form.GetFormItem(1).(*tview.InputField).GetText()
 		p, _ := strconv.Atoi(port)
+		self.address = addr
+		self.port = port
+
 		self.SetAddress(addr, p)
 		s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
-		// self.frames.WriteLog(s)
 		self.write_log_call(s)
 
 	})
@@ -114,5 +121,5 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 }
 
 func (self *AddressFrame) SetAddress(addr string, port int) {
-	self.udp_soc.SetAddr(addr, port)
+	self.frames.Udp.SetAddr(addr, port)
 }

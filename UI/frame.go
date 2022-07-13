@@ -1,6 +1,8 @@
 package ui
 
 import (
+	udp "FinsEmu/UDP"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -10,9 +12,9 @@ type Frame interface {
 }
 
 type Frames struct {
-	App            *tview.Application
-	log_text_frame *tview.TextView
-	log_text       string
+	App *tview.Application
+	Udp *udp.Udp_Sock
+	Connected bool
 }
 
 func (self *Frames) Focus(elements []tview.Primitive, reverse bool) {
@@ -50,14 +52,19 @@ func (self *Frames) FocusEvent(elements []tview.Primitive, event *tcell.EventKey
 	}
 }
 
-func (self *Frames) WriteLog(text string) {
-	self.log_text += text
-	self.log_text_frame.SetText(self.log_text)
+// func (self *Frames) WriteLog(text string) {
+// 	self.log_text += text
+// 	self.log_text_frame.SetText(self.log_text)
+//
+// }
+//
+// func (self *Frames) ResetLog() {
+// 	self.log_text = ""
+// 	self.log_text_frame.SetText(self.log_text)
+//
+// }
 
-}
-
-func (self *Frames) ResetLog() {
-	self.log_text = ""
-	self.log_text_frame.SetText(self.log_text)
-
-}
+// func (self *Frames) ConvinientFrameChangePage(name string) {
+// 	self.convinient_frame.SwitchToPage(name)
+// 	self.App.SetFocus(self.c)
+// }

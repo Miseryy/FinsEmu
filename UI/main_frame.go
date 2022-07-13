@@ -1,6 +1,8 @@
 package ui
 
 import (
+	udp "FinsEmu/UDP"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -11,7 +13,7 @@ type MainFrame struct {
 }
 
 type ChildFrames struct {
-	address_frame    *tview.Grid
+	address_frame    *tview.Flex
 	command_frame    *tview.Pages
 	convenient_frame *tview.Pages
 }
@@ -23,22 +25,64 @@ func NewMainFrame(f *Frames) *MainFrame {
 	}
 }
 
+func (self *MainFrame) setComCB_FromConvinient(command_frame *CommandFrame, convinient_frame *ConvinientFrame) {
+	command_frame.change_add_form_callback = func() {
+		convinient_frame.Change2AddDataFrame()
+	}
+
+	command_frame.reset_log_callback = func() {
+		convinient_frame.ResetLog()
+	}
+
+	command_frame.connect_udp_callback = func() {
+		err := self.frames.Udp.Listen()
+		if err != nil {
+			convinient_frame.WriteLog(err.Error())
+			return
+		}
+		self.frames.Connected = true
+
+	}
+
+	command_frame.close_udp_callback = func() {
+		err := self.frames.Udp.Close()
+		if err != nil {
+			convinient_frame.WriteLog(err.Error())
+			return
+		}
+		self.frames.Connected = false
+
+	}
+
+}
+
 func (self *MainFrame) MakeFrame() tview.Primitive {
-	self.frames.log_text_frame = tview.NewTextView()
-	self.frames.log_text = string("")
+	self.frames.Udp = udp.New()
+	self.frames.Connected = false
+
+	address_frame := NewAddressFrame(self.frames)
+	command_frame := NewCommandFrame(self.frames)
+	convinient_frame := NewConvinientFrame(self.frames)
 
 	child_frames := ChildFrames{
-		address_frame:    NewAddressFrame(self.frames).MakeFrame().(*tview.Grid),
-		command_frame:    NewCommandFrame(self.frames).MakeFrame().(*tview.Pages),
-		convenient_frame: NewConvinientFrame(self.frames).MakeFrame().(*tview.Pages),
+		address_frame:    address_frame.MakeFrame().(*tview.Flex),
+		command_frame:    command_frame.MakeFrame().(*tview.Pages),
+		convenient_frame: convinient_frame.MakeFrame().(*tview.Pages),
 	}
+
+	address_frame.write_log_call = func(text string) {
+		convinient_frame.WriteLog(text)
+	}
+
+	self.setComCB_FromConvinient(command_frame, convinient_frame)
+
 	self.main_frame.SetBorder(true).SetTitle("FinsUDPEmurator").SetTitleAlign(0).SetTitleColor(tcell.ColorYellowGreen)
 	self.main_frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlA:
 			self.frames.App.SetFocus(child_frames.address_frame)
 
-		case tcell.KeyCtrlO:
+		case tcell.KeyCtrlS:
 			self.frames.App.SetFocus(child_frames.command_frame)
 
 		case tcell.KeyCtrlL:
@@ -47,7 +91,7 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 		return event
 	})
 
-	self.main_frame.SetRows(7, 0, 8).SetColumns(44, 0)
+	self.main_frame.SetRows(9, 0, 8).SetColumns(45, 0)
 	// self.main_frame.SetBackgroundColor(tcell.ColorWhite)
 	self.main_frame.AddItem(child_frames.address_frame, 0, 0, 1, 1, 0, 0, true)
 	self.main_frame.AddItem(child_frames.command_frame, 1, 0, 3, 1, 0, 0, true)
