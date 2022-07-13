@@ -10,9 +10,10 @@ import (
 )
 
 type AddressFrame struct {
-	AddressP AddressViewPri
-	frames   *Frames
-	udp_soc  *udp.Udp_Sock
+	AddressP       AddressViewPri
+	frames         *Frames
+	udp_soc        *udp.Udp_Sock
+	write_log_call func(string)
 }
 
 type AddressViewPri struct {
@@ -52,7 +53,8 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 		p, _ := strconv.Atoi(port)
 		self.SetAddress(addr, p)
 		s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
-		self.frames.WriteLog(s)
+		// self.frames.WriteLog(s)
+		self.write_log_call(s)
 
 	})
 
@@ -85,21 +87,28 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 			return event
 		})
 
-	address_main := tview.NewGrid()
-	address_view := tview.NewGrid()
+	address_main := tview.NewFlex()
+	address_form := tview.NewForm()
 
-	address_view.SetBackgroundColor(tcell.ColorBlack)
-	address_main.SetBorder(true).SetTitle("<A>ddress & Port")
+	address_form.AddInputField("Address", "", 40, nil, nil)
+	address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
+	address_form.AddButton("Set", func() {
+		addr := address_form.GetFormItem(0).(*tview.InputField).GetText()
+		port := address_form.GetFormItem(1).(*tview.InputField).GetText()
+		p, _ := strconv.Atoi(port)
+		self.SetAddress(addr, p)
+		s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
+		// self.frames.WriteLog(s)
+		self.write_log_call(s)
 
-	address_view.SetRows(2, 2).SetColumns(0, 0)
-	address_view.AddItem(self.AddressP.address_IF, 0, 0, 1, 2, 0, 0, true)
-	address_view.AddItem(self.AddressP.port_IF, 1, 0, 1, 2, 0, 0, true)
+	})
 
-	address_main.SetRows(4, 1).SetColumns(10, 0, 0, 10)
+	address_main.SetBorder(true).SetTitle("Address & Port <A>")
+
+	address_main.SetDirection(tview.FlexRow)
 
 	address_main.
-		AddItem(address_view, 0, 0, 1, 4, 0, 0, true).
-		AddItem(self.AddressP.set_addr_button, 1, 3, 1, 1, 0, 0, true)
+		AddItem(address_form, 0, 1, true)
 
 	return address_main
 }
