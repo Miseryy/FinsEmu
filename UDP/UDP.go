@@ -11,28 +11,33 @@ func New() *Udp_Sock {
 	return &Udp_Sock{}
 }
 
-func (ud *Udp_Sock) SetAddr(ip_addr string, port int) {
-	ud.udpAddr = &net.UDPAddr{
+func (self *Udp_Sock) SetAddr(ip_addr string, port int) {
+	self.udpAddr = &net.UDPAddr{
 		IP:   net.ParseIP(ip_addr),
 		Port: port,
 	}
 }
 
-func (ud *Udp_Sock) Listen() error {
-	u, err := net.ListenUDP("udp", ud.udpAddr)
-	ud.udpLn = u
+func (self *Udp_Sock) Listen() error {
+	u, err := net.ListenUDP("udp", self.udpAddr)
+	self.udpLn = u
 
 	return err
 }
 
-func (ud *Udp_Sock) ReadFrom(buf []byte) (int, *net.UDPAddr, error) {
-	n, addr, err := ud.udpLn.ReadFromUDP(buf)
+func (self *Udp_Sock) ReadFrom(buf []byte) (int, *net.UDPAddr, error) {
+	n, addr, err := self.udpLn.ReadFromUDP(buf)
 	return n, addr, err
 
 }
 
-func (ud *Udp_Sock) WriteTo(buf []byte, addr *net.UDPAddr) (int, error) {
-	n, err := ud.udpLn.WriteTo(buf, addr)
+func (self *Udp_Sock) WriteTo(buf []byte, addr *net.UDPAddr) (int, error) {
+	n, err := self.udpLn.WriteTo(buf, addr)
 	return n, err
 
+}
+
+func (self *Udp_Sock) Close() error {
+	e := self.udpLn.Close()
+	return e
 }
