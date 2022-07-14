@@ -60,14 +60,14 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 	self.frames.Udp = udp.New()
 	self.frames.Connected = false
 
-	address_frame := NewAddressFrame(self.frames)
-	command_frame := NewCommandFrame(self.frames)
 	convinient_frame := NewConvinientFrame(self.frames)
+	command_frame := NewCommandFrame(self.frames)
+	address_frame := NewAddressFrame(self.frames)
 
 	child_frames := ChildFrames{
-		address_frame:    address_frame.MakeFrame().(*tview.Flex),
-		command_frame:    command_frame.MakeFrame().(*tview.Pages),
 		convenient_frame: convinient_frame.MakeFrame().(*tview.Pages),
+		command_frame:    command_frame.MakeFrame().(*tview.Pages),
+		address_frame:    address_frame.MakeFrame().(*tview.Flex),
 	}
 
 	address_frame.write_log_call = func(text string) {

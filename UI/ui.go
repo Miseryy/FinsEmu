@@ -1,8 +1,16 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"os"
+
+	"github.com/rivo/tview"
+)
 
 // https://github.com/rivo/tview/wiki
+var (
+	curent_dir, _ = os.Getwd()
+	json_path     = curent_dir + "/data.json"
+)
 
 func RunApp() {
 	app := tview.NewApplication()
