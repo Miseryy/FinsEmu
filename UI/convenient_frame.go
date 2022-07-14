@@ -56,7 +56,7 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	}
 
 	self.add_frame.WriteLog = func(text string) {
-		self.log_text_frame.WriteLog(Add)
+		self.log_text_frame.WriteLog(text)
 	}
 
 	self.delete_frame.change2LogFrame_call = func() {

@@ -2,7 +2,6 @@ package ui
 
 import (
 	jsonutil "FinsEmu/JsonUtil"
-	"fmt"
 	"sort"
 	"strconv"
 
@@ -46,13 +45,15 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 	sort.Strings(keys)
 
 	for i, k := range keys {
-		val, ok := items[k].(float64)
-		if ok {
-			panic(ok)
+		val := items[k]
+		var value int
+		switch v := val.(type) {
+		case float64:
+			value = int(v)
 		}
-		fmt.Println(val)
+
 		table.SetCell(i+1, 0, tview.NewTableCell(k))
-		table.SetCell(i+1, 1, tview.NewTableCell(strconv.Itoa(int(val))))
+		table.SetCell(i+1, 1, tview.NewTableCell(strconv.Itoa(value)))
 	}
 
 	table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {

@@ -21,12 +21,25 @@ func NewAddFormFrame(j *jsonutil.MyJson) *AddFormFrame {
 
 }
 
+func (self *AddFormFrame) checkHex(text string, ch rune) bool {
+	if ch >= '0' && ch <= '9' {
+		return true
+	}
+
+	if (ch >= 'a' && ch <= 'f') ||
+		(ch >= 'A' && ch <= 'F') {
+		return true
+	}
+
+	return false
+}
+
 func (self *AddFormFrame) MakeFrame() tview.Primitive {
 	add_form := tview.NewForm()
 
 	add_form.SetBorder(true).SetTitle("Add Data")
 	add_form.AddInputField("DM", "", 20, tview.InputFieldInteger, nil)
-	add_form.AddInputField("Data(0x)", "", 20, nil, nil)
+	add_form.AddInputField("Data(Hex)", "", 20, self.checkHex, nil)
 
 	add_form.AddButton("Save", func() {
 		dm_no := add_form.GetFormItem(0).(*tview.InputField).GetText()
@@ -47,6 +60,7 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 			self.WriteLog(err.Error())
 			add_form.GetFormItem(0).(*tview.InputField).SetText("")
 			add_form.GetFormItem(1).(*tview.InputField).SetText("")
+			self.Change2LogFrameCall()
 			return
 		}
 

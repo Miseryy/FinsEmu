@@ -61,7 +61,7 @@ func (self *MyJson) WriteJson() error {
 }
 
 func (self *MyJson) AddItem(key string, data int64) *MyJson {
-	self.json_map[key] = map[string]int{"Data": int(data)}
+	self.json_map[key] = data // map[string]int{"Data": int(data)}
 	return self
 }
 
