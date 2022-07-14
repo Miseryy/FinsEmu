@@ -31,13 +31,13 @@ func (self *MainFrame) setComCB_FromConvinient(command_frame *CommandFrame, conv
 	}
 
 	command_frame.reset_log_callback = func() {
-		convinient_frame.ResetLog()
+		convinient_frame.log_text_frame.ResetLog()
 	}
 
 	command_frame.connect_udp_callback = func() {
 		err := self.frames.Udp.Listen()
 		if err != nil {
-			convinient_frame.WriteLog(err.Error())
+			convinient_frame.log_text_frame.WriteLog(err.Error())
 			return
 		}
 		self.frames.Connected = true
@@ -47,7 +47,7 @@ func (self *MainFrame) setComCB_FromConvinient(command_frame *CommandFrame, conv
 	command_frame.close_udp_callback = func() {
 		err := self.frames.Udp.Close()
 		if err != nil {
-			convinient_frame.WriteLog(err.Error())
+			convinient_frame.log_text_frame.WriteLog(err.Error())
 			return
 		}
 		self.frames.Connected = false
@@ -71,7 +71,7 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 	}
 
 	address_frame.write_log_call = func(text string) {
-		convinient_frame.WriteLog(text)
+		convinient_frame.log_text_frame.WriteLog(text)
 	}
 
 	self.setComCB_FromConvinient(command_frame, convinient_frame)

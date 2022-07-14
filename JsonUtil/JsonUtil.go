@@ -28,10 +28,6 @@ func (js *MyJson) LoadJson(path string) error {
 		return err
 	}
 
-	for k, v := range js.json_map {
-		fmt.Println(k, v)
-	}
-
 	return err
 }
 

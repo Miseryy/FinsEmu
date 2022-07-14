@@ -5,11 +5,12 @@ import (
 )
 
 type CommandFrame struct {
-	frames                   *Frames
-	change_add_form_callback func()
-	reset_log_callback       func()
-	connect_udp_callback     func()
-	close_udp_callback       func()
+	frames                      *Frames
+	change_add_form_callback    func()
+	change_delete_form_callback func()
+	reset_log_callback          func()
+	connect_udp_callback        func()
+	close_udp_callback          func()
 }
 
 func NewCommandFrame(f *Frames) *CommandFrame {
@@ -27,6 +28,10 @@ func (self *CommandFrame) MakeFrame() tview.Primitive {
 	command_list.
 		AddItem("Add Data", "Add DM Data", 'a', func() {
 			self.change_add_form_callback()
+		}).
+		AddItem("Delete Data", "Delete DM Data", 'd', func() {
+			self.change_delete_form_callback()
+
 		}).
 		AddItem("Connect", "Connect UDP", 'c', func() {
 			self.connect_udp_callback()
