@@ -54,6 +54,11 @@ func (self *MainFrame) setComCB_FromConvinient(command_frame *CommandFrame, conv
 
 	}
 
+	command_frame.change_delete_form_callback = func() {
+		convinient_frame.Change2DeleteFrame()
+
+	}
+
 }
 
 func (self *MainFrame) MakeFrame() tview.Primitive {

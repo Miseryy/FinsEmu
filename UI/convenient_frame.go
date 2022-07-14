@@ -11,8 +11,10 @@ type ConvinientFrame struct {
 	frames           *Frames
 	log_text_frame   *LogTextViewFrame
 	add_frame        *AddFormFrame
+	delete_frame     *DeleteFormFrame
 	convinient_frame *tview.Pages
 	add_form         *tview.Form
+	delete_table     *tview.Table
 	log_text         string
 }
 
@@ -22,13 +24,26 @@ func NewConvinientFrame(f *Frames) *ConvinientFrame {
 	}
 }
 
+type PageName string
+
+const (
+	Log = string("Log")
+	Add = string("Add")
+	Del = string("Del")
+)
+
 func (self *ConvinientFrame) MakeFrame() tview.Primitive {
+	js := jsonutil.New(json_path)
 	self.convinient_frame = tview.NewPages()
 	self.log_text_frame = NewLogTextViewFrame()
-	log_text_view := self.log_text_frame.MakeFrame().(*tview.TextView)
+	self.add_frame = NewAddFormFrame(js)
+	self.delete_frame = NewDeleteFormFrame(js)
 
-	js := jsonutil.New()
-	err := js.LoadJson(json_path)
+	self.add_form = self.add_frame.MakeFrame().(*tview.Form)
+	log_text_view := self.log_text_frame.MakeFrame().(*tview.TextView)
+	self.delete_table = self.delete_frame.MakeFrame().(*tview.Table)
+
+	err := js.LoadJson()
 
 	if err != nil {
 		self.log_text_frame.WriteLog("Json Load Failed")
@@ -36,30 +51,39 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 		self.log_text_frame.WriteLog(s)
 	}
 
-	self.add_frame = NewAddFormFrame(js)
-	self.add_form = self.add_frame.MakeFrame().(*tview.Form)
-
 	self.add_frame.Change2LogFrameCall = func() {
 		self.Change2LogFrame()
 	}
 
 	self.add_frame.WriteLog = func(text string) {
-		self.log_text_frame.WriteLog("Add")
+		self.log_text_frame.WriteLog(Add)
+	}
+
+	self.delete_frame.change2LogFrame_call = func() {
+		self.Change2LogFrame()
 	}
 
 	self.convinient_frame.
-		AddPage("Log", log_text_view, true, true).
-		AddPage("Add", self.add_form, true, false)
+		AddPage(Log, log_text_view, true, true).
+		AddPage(Add, self.add_form, true, false).
+		AddPage(Del, self.delete_table, true, false)
 
 	return self.convinient_frame
 }
 
 func (self *ConvinientFrame) Change2LogFrame() {
-	self.convinient_frame.SwitchToPage("Log")
+	self.convinient_frame.SwitchToPage(Log)
 
 }
 
 func (self *ConvinientFrame) Change2AddDataFrame() {
-	self.convinient_frame.SwitchToPage("Add")
+	self.convinient_frame.SwitchToPage(Add)
 	self.frames.App.SetFocus(self.add_form)
+}
+
+func (self *ConvinientFrame) Change2DeleteFrame() {
+	self.convinient_frame.SwitchToPage(Del)
+	self.delete_frame.makeCells(self.delete_table)
+	self.frames.App.SetFocus(self.delete_table)
+
 }

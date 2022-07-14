@@ -53,7 +53,7 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 		fmt.Println(i_data)
 
 		self.js.AddItem(dm_no, i_data)
-		err = self.js.WriteJson(json_path)
+		err = self.js.WriteJson()
 
 		if err != nil {
 			s := fmt.Sprint(err)

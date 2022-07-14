@@ -5,23 +5,28 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type MyJson struct {
 	json_map map[string]interface{}
+	path     string
 }
 
-func New() *MyJson {
-	return &MyJson{json_map: make(map[string]interface{}, 0)}
+func New(p string) *MyJson {
+	return &MyJson{
+		json_map: make(map[string]interface{}, 0),
+		path:     p,
+	}
 }
 
-func (js *MyJson) LoadJson(path string) error {
-	buf, err := ioutil.ReadFile(path)
+func (self *MyJson) LoadJson() error {
+	buf, err := ioutil.ReadFile(self.path)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(buf, &js.json_map)
+	err = json.Unmarshal(buf, &self.json_map)
 
 	if err != nil {
 		fmt.Println(err)
@@ -31,8 +36,8 @@ func (js *MyJson) LoadJson(path string) error {
 	return err
 }
 
-func (js *MyJson) WriteJson(outpath string) error {
-	file, err := os.OpenFile(outpath, os.O_CREATE|os.O_WRONLY, 0666)
+func (self *MyJson) WriteJson() error {
+	file, err := os.Create(self.path)
 
 	if err != nil {
 		fmt.Println("Open Error")
@@ -41,7 +46,11 @@ func (js *MyJson) WriteJson(outpath string) error {
 
 	defer file.Close()
 
-	err = json.NewEncoder(file).Encode(js.json_map)
+	e := json.NewEncoder(file)
+	e.SetIndent("", strings.Repeat(" ", 2))
+	e.SetEscapeHTML(true)
+
+	err = e.Encode(self.json_map)
 
 	if err != nil {
 		fmt.Println("Write Error")
@@ -51,7 +60,16 @@ func (js *MyJson) WriteJson(outpath string) error {
 	return err
 }
 
-func (js *MyJson) AddItem(key string, data int64) *MyJson {
-	js.json_map[key] = map[string]int{"Data": int(data)}
-	return js
+func (self *MyJson) AddItem(key string, data int64) *MyJson {
+	self.json_map[key] = map[string]int{"Data": int(data)}
+	return self
+}
+
+func (self *MyJson) DeleteItem(key string) *MyJson {
+	delete(self.json_map, key)
+	return self
+}
+
+func (self *MyJson) GetMap() map[string]interface{} {
+	return self.json_map
 }
