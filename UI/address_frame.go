@@ -11,6 +11,7 @@ import (
 type AddressFrame struct {
 	AddressP       AddressViewPri
 	frames         *Frames
+	address_form   *tview.Form
 	write_log_call func(string)
 	address        string
 	port           string
@@ -87,35 +88,37 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 		})
 
 	address_main := tview.NewFlex()
-	address_form := tview.NewForm()
+	self.address_form = tview.NewForm()
 
-	address_form.AddInputField("Address", "", 40, nil, nil)
-	address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
-	address_form.AddButton("Set", func() {
-		if self.frames.Connected {
-			s := fmt.Sprintf("NowConnected\nAddress::%s\nPort::%s\n", self.address, self.port)
-			self.write_log_call(s)
+	self.address_form.AddInputField("Address", "", 40, nil, nil)
+	self.address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
+	// address_form.AddButton("Set", func() {
+	// 	if self.frames.Connected {
+	// 		s := fmt.Sprintf("NowConnected\nAddress::%s\nPort::%s\n", self.address, self.port)
+	// 		self.write_log_call(s)
 
-			return
-		}
-		addr := address_form.GetFormItem(0).(*tview.InputField).GetText()
-		port := address_form.GetFormItem(1).(*tview.InputField).GetText()
-		p, _ := strconv.Atoi(port)
-		self.address = addr
-		self.port = port
+	// 		return
+	// 	}
 
-		self.SetAddress(addr, p)
-		s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
-		self.write_log_call(s)
+	// 	addr := address_form.GetFormItem(0).(*tview.InputField).GetText()
+	// 	port := address_form.GetFormItem(1).(*tview.InputField).GetText()
+	// 	p, _ := strconv.Atoi(port)
 
-	})
+	// 	self.address = addr
+	// 	self.port = port
+
+	// 	self.SetAddress(addr, p)
+	// 	s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
+	// 	self.write_log_call(s)
+
+	// })
 
 	address_main.SetBorder(true).SetTitle("Address & Port <A>")
 
 	address_main.SetDirection(tview.FlexRow)
 
 	address_main.
-		AddItem(address_form, 0, 1, true)
+		AddItem(self.address_form, 0, 1, true)
 
 	return address_main
 }
