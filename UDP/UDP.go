@@ -1,6 +1,9 @@
 package udp
 
-import "net"
+import (
+	"net"
+	"strconv"
+)
 
 type Udp_Sock struct {
 	udpAddr *net.UDPAddr
@@ -40,4 +43,11 @@ func (self *Udp_Sock) WriteTo(buf []byte, addr *net.UDPAddr) (int, error) {
 func (self *Udp_Sock) Close() error {
 	e := self.udpLn.Close()
 	return e
+}
+
+func (self *Udp_Sock) GetAddressAndPort() (string, string) {
+	str_port := strconv.Itoa(self.udpAddr.Port)
+
+	return self.udpAddr.IP.String(), str_port
+
 }
