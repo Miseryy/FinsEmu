@@ -12,8 +12,8 @@ type Frame interface {
 }
 
 type Frames struct {
-	App *tview.Application
-	Udp *udp.Udp_Sock
+	App       *tview.Application
+	Udp       *udp.Udp_Sock
 	Connected bool
 }
 
@@ -51,20 +51,3 @@ func (self *Frames) FocusEvent(elements []tview.Primitive, event *tcell.EventKey
 
 	}
 }
-
-// func (self *Frames) WriteLog(text string) {
-// 	self.log_text += text
-// 	self.log_text_frame.SetText(self.log_text)
-//
-// }
-//
-// func (self *Frames) ResetLog() {
-// 	self.log_text = ""
-// 	self.log_text_frame.SetText(self.log_text)
-//
-// }
-
-// func (self *Frames) ConvinientFrameChangePage(name string) {
-// 	self.convinient_frame.SwitchToPage(name)
-// 	self.App.SetFocus(self.c)
-// }
