@@ -49,21 +49,22 @@ func (self *MainFrame) setCallBacks() {
 
 		if self.frames.Connected {
 			s := fmt.Sprintf("!!Connected \nAddress::%s\nPort   ::%s", addr, port)
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(s)
+			self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
 		}
 
 		int_port, _ := strconv.Atoi(port)
 		self.frames.Udp.SetAddr(addr, int_port)
 		err := self.frames.Udp.Listen()
+
 		if err != nil {
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error())
+			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
 			return
 		}
 
 		self.child_frames.convinient_frame.Change2LogFrame()
 
 		s := fmt.Sprintf("Connect \nAddress::%s\nPort   ::%s", addr, port)
-		self.child_frames.convinient_frame.log_text_frame.WriteLog(s)
+		self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
 		self.frames.Connected = true
 
 		go func() {
@@ -71,9 +72,25 @@ func (self *MainFrame) setCallBacks() {
 				if !self.frames.Connected {
 					break
 				}
+				buff := make([]byte, 128)
+				num, addr, err := self.frames.Udp.ReadFrom(buff)
+
+				if err != nil {
+					self.frames.App.QueueUpdateDraw(func() {
+						self.child_frames.convinient_frame.log_text_frame.WriteLog("Recv Failed", true)
+					})
+					continue
+				}
 
 				self.frames.App.QueueUpdateDraw(func() {
-					// self.child_frames.convinient_frame.log_text_frame.WriteLog(strconv.Itoa(i))
+					str_port := strconv.Itoa(addr.Port)
+					s := fmt.Sprintf("From [%s:%s]:%s", addr.IP, str_port, buff[:num])
+					self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+
+					self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
+					s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
+					self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+
 				})
 			}
 		}()
@@ -82,7 +99,7 @@ func (self *MainFrame) setCallBacks() {
 	self.child_frames.command_frame.close_udp_callback = func() {
 		err := self.frames.Udp.Close()
 		if err != nil {
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error())
+			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
 			return
 		}
 		self.frames.Connected = false
@@ -95,7 +112,7 @@ func (self *MainFrame) setCallBacks() {
 	}
 
 	self.child_frames.address_frame.write_log_call = func(text string) {
-		self.child_frames.convinient_frame.log_text_frame.WriteLog(text)
+		self.child_frames.convinient_frame.log_text_frame.WriteLog(text, true)
 	}
 
 }

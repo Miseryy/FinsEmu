@@ -49,5 +49,4 @@ func (self *Udp_Sock) GetAddressAndPort() (string, string) {
 	str_port := strconv.Itoa(self.udpAddr.Port)
 
 	return self.udpAddr.IP.String(), str_port
-
 }

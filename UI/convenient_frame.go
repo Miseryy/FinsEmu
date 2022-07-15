@@ -46,9 +46,9 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	err := js.LoadJson()
 
 	if err != nil {
-		self.log_text_frame.WriteLog("Json Load Failed")
+		self.log_text_frame.WriteLog("Json Load Failed", true)
 		s := fmt.Sprint(err)
-		self.log_text_frame.WriteLog(s)
+		self.log_text_frame.WriteLog(s, true)
 	}
 
 	self.add_frame.Change2LogFrameCall = func() {
@@ -56,7 +56,7 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	}
 
 	self.add_frame.WriteLog = func(text string) {
-		self.log_text_frame.WriteLog(text)
+		self.log_text_frame.WriteLog(text, true)
 	}
 
 	self.delete_frame.change2LogFrame_call = func() {
