@@ -13,7 +13,7 @@ type ConvinientFrame struct {
 	add_frame        *AddFormFrame
 	delete_frame     *DeleteFormFrame
 	convinient_frame *tview.Pages
-	add_form         *tview.Form
+	add_form         *tview.Grid
 	delete_table     *tview.Table
 	log_text         string
 }
@@ -34,12 +34,12 @@ const (
 
 func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	js := jsonutil.New(json_path)
-	self.convinient_frame = tview.NewPages()
+	self.convinient_frame = self.frames.MakePageFrame("convinient", tview.NewPages())
 	self.log_text_frame = NewLogTextViewFrame()
-	self.add_frame = NewAddFormFrame(js)
+	self.add_frame = NewAddFormFrame(self.frames, js)
 	self.delete_frame = NewDeleteFormFrame(js)
 
-	self.add_form = self.add_frame.MakeFrame().(*tview.Form)
+	self.add_form = self.add_frame.MakeFrame().(*tview.Grid)
 	log_text_view := self.log_text_frame.MakeFrame().(*tview.TextView)
 	self.delete_table = self.delete_frame.MakeFrame().(*tview.Table)
 

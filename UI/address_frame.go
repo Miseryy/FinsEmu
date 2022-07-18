@@ -92,26 +92,6 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 
 	self.address_form.AddInputField("Address", "", 40, nil, nil)
 	self.address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
-	// address_form.AddButton("Set", func() {
-	// 	if self.frames.Connected {
-	// 		s := fmt.Sprintf("NowConnected\nAddress::%s\nPort::%s\n", self.address, self.port)
-	// 		self.write_log_call(s)
-
-	// 		return
-	// 	}
-
-	// 	addr := address_form.GetFormItem(0).(*tview.InputField).GetText()
-	// 	port := address_form.GetFormItem(1).(*tview.InputField).GetText()
-	// 	p, _ := strconv.Atoi(port)
-
-	// 	self.address = addr
-	// 	self.port = port
-
-	// 	self.SetAddress(addr, p)
-	// 	s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
-	// 	self.write_log_call(s)
-
-	// })
 
 	address_main.SetBorder(true).SetTitle("Address & Port <A>")
 

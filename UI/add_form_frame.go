@@ -12,16 +12,22 @@ type AddFormFrame struct {
 	Change2LogFrameCall func()
 	WriteLog            func(string)
 	js                  *jsonutil.MyJson
+	frames              *Frames
 }
 
-func NewAddFormFrame(j *jsonutil.MyJson) *AddFormFrame {
+func NewAddFormFrame(f *Frames, j *jsonutil.MyJson) *AddFormFrame {
 	return &AddFormFrame{
-		js: j,
+		js:     j,
+		frames: f,
 	}
 
 }
 
 func (self *AddFormFrame) checkHex(text string, ch rune) bool {
+	if len(text) > 4 {
+		return false
+	}
+
 	if ch >= '0' && ch <= '9' {
 		return true
 	}
@@ -35,9 +41,10 @@ func (self *AddFormFrame) checkHex(text string, ch rune) bool {
 }
 
 func (self *AddFormFrame) MakeFrame() tview.Primitive {
+	add_grid := tview.NewGrid()
 	add_form := tview.NewForm()
 
-	add_form.SetBorder(true).SetTitle("Add Data")
+	add_grid.SetBorder(true).SetTitle("Add Data")
 	add_form.AddInputField("DM", "", 20, tview.InputFieldInteger, nil)
 	add_form.AddInputField("Data(Hex)", "", 20, self.checkHex, nil)
 
@@ -63,8 +70,6 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 			self.Change2LogFrameCall()
 			return
 		}
-
-		fmt.Println(i_data)
 
 		self.js.AddItem(dm_no, i_data)
 		err = self.js.WriteJson()
@@ -92,6 +97,10 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 
 	})
 
-	return add_form
+	add_grid.SetRows(1, 0).SetColumns(0)
+
+	add_grid.AddItem(add_form, 1, 0, 1, 1, 0, 0, false)
+
+	return add_grid
 
 }

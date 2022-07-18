@@ -41,6 +41,11 @@ func (self *Udp_Sock) WriteTo(buf []byte, addr *net.UDPAddr) (int, error) {
 }
 
 func (self *Udp_Sock) Close() error {
+	if self.udpLn == nil {
+		return nil
+
+	}
+
 	e := self.udpLn.Close()
 	return e
 }

@@ -15,6 +15,17 @@ type Frames struct {
 	App       *tview.Application
 	Udp       *udp.Udp_Sock
 	Connected bool
+	frame_map map[string]tview.Primitive
+}
+
+func (self *Frames) MakePageFrame(name string, frame *tview.Pages) *tview.Pages {
+	self.frame_map[name] = frame
+	return frame
+}
+
+func (self *Frames) FrameRegister(name string, frame *tview.Primitive) *tview.Primitive {
+	self.frame_map[name] = *frame
+	return frame
 }
 
 func (self *Frames) Focus(elements []tview.Primitive, reverse bool) {

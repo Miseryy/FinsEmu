@@ -9,6 +9,15 @@ import (
 	"github.com/rivo/tview"
 )
 
+type FrameName string
+
+const ()
+
+func (self FrameName) String() string {
+	return string(self)
+
+}
+
 type MainFrame struct {
 	main_frame   *tview.Grid
 	frames       *Frames
@@ -72,12 +81,13 @@ func (self *MainFrame) setCallBacks() {
 				if !self.frames.Connected {
 					break
 				}
+
 				buff := make([]byte, 128)
 				num, addr, err := self.frames.Udp.ReadFrom(buff)
 
 				if err != nil {
 					self.frames.App.QueueUpdateDraw(func() {
-						self.child_frames.convinient_frame.log_text_frame.WriteLog("Recv Failed", true)
+						self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
 					})
 					continue
 				}
@@ -120,7 +130,9 @@ func (self *MainFrame) setCallBacks() {
 func (self *MainFrame) MakeFrame() tview.Primitive {
 	self.frames.Udp = udp.New()
 	self.frames.Connected = false
+	self.frames.FrameRegister("")
 
+	self.frames.Udp.Close()
 	self.child_frames = &ChildFrames{
 		convinient_frame: NewConvinientFrame(self.frames),
 		command_frame:    NewCommandFrame(self.frames),
