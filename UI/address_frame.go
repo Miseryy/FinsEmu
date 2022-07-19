@@ -1,6 +1,7 @@
 package ui
 
 import (
+	jsonutil "FinsEmu/JsonUtil"
 	"fmt"
 	"strconv"
 
@@ -15,6 +16,7 @@ type AddressFrame struct {
 	write_log_call func(string)
 	address        string
 	port           string
+	js             *jsonutil.MyJson
 }
 
 type AddressViewPri struct {
@@ -23,7 +25,7 @@ type AddressViewPri struct {
 	set_addr_button *tview.Button
 }
 
-func NewAddressFrame(f *Frames) *AddressFrame {
+func NewAddressFrame(j *jsonutil.MyJson, f *Frames) *AddressFrame {
 	return &AddressFrame{
 		AddressP: AddressViewPri{
 			address_IF:      tview.NewInputField(),
@@ -31,10 +33,19 @@ func NewAddressFrame(f *Frames) *AddressFrame {
 			set_addr_button: tview.NewButton("Set"),
 		},
 		frames: f,
+		js:     j,
 	}
 }
 
 func (self *AddressFrame) MakeFrame() tview.Primitive {
+	e := self.js.LoadJson()
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	json_map := self.js.GetMap()
+	fmt.Println(json_map)
+
 	elements := []tview.Primitive{
 		self.AddressP.address_IF,
 		self.AddressP.port_IF,
@@ -97,6 +108,13 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 
 	address_main.SetDirection(tview.FlexRow)
 
+	address, ad_ok := json_map["address"].(string)
+	port, po_ok := json_map["port"].(float64)
+	if ad_ok && po_ok {
+		self.address_form.GetFormItem(0).(*tview.InputField).SetText(address)
+		self.address_form.GetFormItem(1).(*tview.InputField).SetText(strconv.Itoa(int(port)))
+	}
+
 	address_main.
 		AddItem(self.address_form, 0, 1, true)
 
@@ -104,5 +122,8 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 }
 
 func (self *AddressFrame) SetAddress(addr string, port int) {
+	self.js.AddItemString("address", addr).
+		AddItemInt("port", int64(port)).
+		WriteJson()
 	self.frames.Udp.SetAddr(addr, port)
 }

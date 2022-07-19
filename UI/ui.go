@@ -8,8 +8,9 @@ import (
 
 // https://github.com/rivo/tview/wiki
 var (
-	curent_dir, _ = os.Getwd()
-	json_path     = curent_dir + "/data.json"
+	curent_dir, _     = os.Getwd()
+	data_json_path    = curent_dir + "/data.json"
+	setting_json_path = curent_dir + "/setting.json"
 )
 
 func RunApp() {

@@ -42,7 +42,7 @@ func (self *AddFormFrame) checkHex(text string, ch rune) bool {
 
 func (self *AddFormFrame) MakeFrame() tview.Primitive {
 	add_grid := tview.NewGrid()
-	add_form := tview.NewForm()
+	add_form := self.frames.FrameRegister(AddDataFormFrameName, tview.NewForm()).(*tview.Form)
 
 	add_grid.SetBorder(true).SetTitle("Add Data")
 	add_form.AddInputField("DM", "", 20, tview.InputFieldInteger, nil)
@@ -71,7 +71,7 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 			return
 		}
 
-		self.js.AddItem(dm_no, i_data)
+		self.js.AddItemInt(dm_no, i_data)
 		err = self.js.WriteJson()
 
 		if err != nil {
@@ -80,10 +80,15 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 			return
 		}
 
+		dm_text := add_form.GetFormItem(0).(*tview.InputField).GetText()
+		data_text := add_form.GetFormItem(1).(*tview.InputField).GetText()
+
+		s := fmt.Sprintf("Add\nDM::%s\nData::0x%s", dm_text, data_text)
+
 		add_form.GetFormItem(0).(*tview.InputField).SetText("")
 		add_form.GetFormItem(1).(*tview.InputField).SetText("")
-		self.WriteLog("Added\n")
 		self.Change2LogFrameCall()
+		self.WriteLog(s)
 	})
 
 	add_form.AddButton("Cancel", func() {

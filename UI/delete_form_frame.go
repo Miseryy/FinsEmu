@@ -40,7 +40,7 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 	table.SetSelectable(true, false)
 
 	table.SetCell(0, 0, tview.NewTableCell("DM").SetTextColor(tcell.ColorYellow))
-	table.SetCell(0, 1, tview.NewTableCell("Data").SetTextColor(tcell.ColorYellow))
+	table.SetCell(0, 1, tview.NewTableCell("Data(Hex)").SetTextColor(tcell.ColorYellow))
 
 	sort.Strings(keys)
 
@@ -53,8 +53,15 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 		}
 
 		table.SetCell(i+1, 0, tview.NewTableCell(k))
-		table.SetCell(i+1, 1, tview.NewTableCell(strconv.Itoa(value)))
+		table.SetCell(i+1, 1, tview.NewTableCell(strconv.FormatInt(int64(value), 16)))
 	}
+
+	table.SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyEscape {
+			self.change2LogFrame_call()
+		}
+
+	})
 
 	table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {

@@ -25,7 +25,7 @@ func (self *CommandFrame) MakeFrame() tview.Primitive {
 	command_main.SetBorder(true).SetTitle("Commands <S>")
 
 	main_commandlist_frame := tview.NewFlex().SetDirection(tview.FlexColumn)
-	self.command_list = tview.NewList()
+	self.command_list = self.frames.FrameRegister(CommandListFrameName, tview.NewList()).(*tview.List)
 	self.command_list.
 		AddItem("Add Data", "Add DM Data", 'a', func() {
 			self.change_add_form_callback()

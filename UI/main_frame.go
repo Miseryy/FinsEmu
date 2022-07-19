@@ -1,6 +1,7 @@
 package ui
 
 import (
+	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
 	"fmt"
 	"strconv"
@@ -9,19 +10,11 @@ import (
 	"github.com/rivo/tview"
 )
 
-type FrameName string
-
-const ()
-
-func (self FrameName) String() string {
-	return string(self)
-
-}
-
 type MainFrame struct {
 	main_frame   *tview.Grid
 	frames       *Frames
 	child_frames *ChildFrames
+	address_json *jsonutil.MyJson
 }
 
 type ChildFrames struct {
@@ -62,6 +55,7 @@ func (self *MainFrame) setCallBacks() {
 		}
 
 		int_port, _ := strconv.Atoi(port)
+
 		self.frames.Udp.SetAddr(addr, int_port)
 		err := self.frames.Udp.Listen()
 
@@ -69,6 +63,10 @@ func (self *MainFrame) setCallBacks() {
 			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
 			return
 		}
+
+		self.address_json.AddItemString("address", addr).
+			AddItemInt("port", int64(int_port)).
+			WriteJson()
 
 		self.child_frames.convinient_frame.Change2LogFrame()
 
@@ -130,13 +128,14 @@ func (self *MainFrame) setCallBacks() {
 func (self *MainFrame) MakeFrame() tview.Primitive {
 	self.frames.Udp = udp.New()
 	self.frames.Connected = false
-	self.frames.FrameRegister("")
+	self.address_json = jsonutil.New(setting_json_path)
+	// self.frames.FrameRegister()
 
-	self.frames.Udp.Close()
+	// self.frames.Udp.Close()
 	self.child_frames = &ChildFrames{
 		convinient_frame: NewConvinientFrame(self.frames),
 		command_frame:    NewCommandFrame(self.frames),
-		address_frame:    NewAddressFrame(self.frames),
+		address_frame:    NewAddressFrame(self.address_json, self.frames),
 	}
 
 	child_frames := ChildPrimitive{
@@ -152,9 +151,11 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 		switch event.Key() {
 		case tcell.KeyCtrlA:
 			self.frames.App.SetFocus(child_frames.address_flex)
+			self.child_frames.convinient_frame.Change2LogFrame()
 
 		case tcell.KeyCtrlS:
 			self.frames.App.SetFocus(child_frames.command_page)
+			self.child_frames.convinient_frame.Change2LogFrame()
 
 		case tcell.KeyCtrlL:
 		}

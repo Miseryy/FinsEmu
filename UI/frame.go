@@ -1,10 +1,32 @@
 package ui
 
 import (
+	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+)
+
+type FrameName string
+
+const (
+	AddressFrameName     FrameName = "Address_F"
+	CommandFrameName               = "Comm_F"
+	CommandListFrameName           = "CommList_F"
+
+	ConvinientFrameName = "Conv_F"
+
+	// LogFrame
+	LogTextFrameName = "LogText_F"
+
+	// AddFrame
+	AddDataGridFrameName = "AddDataGrid_F"
+	AddDataFormFrameName = "AddDataForm_F"
+
+	// DeleteFrame
+	DeleteTableFrameName = "DeleteTable_F"
 )
 
 type Frame interface {
@@ -12,20 +34,26 @@ type Frame interface {
 }
 
 type Frames struct {
-	App       *tview.Application
-	Udp       *udp.Udp_Sock
-	Connected bool
-	frame_map map[string]tview.Primitive
+	App          *tview.Application
+	Udp          *udp.Udp_Sock
+	Connected    bool
+	frame_map    map[FrameName]tview.Primitive
+	setting_json *jsonutil.MyJson
 }
 
-func (self *Frames) MakePageFrame(name string, frame *tview.Pages) *tview.Pages {
+// func (self *Frames) MakePageFrame(name string, frame *tview.Pages) *tview.Pages {
+// 	self.frame_map[name] = frame
+// 	return frame
+// }
+
+func (self *Frames) FrameRegister(name FrameName, frame tview.Primitive) tview.Primitive {
+	if self.frame_map == nil {
+		fmt.Println("New")
+		self.frame_map = make(map[FrameName]tview.Primitive)
+	}
+
 	self.frame_map[name] = frame
-	return frame
-}
-
-func (self *Frames) FrameRegister(name string, frame *tview.Primitive) *tview.Primitive {
-	self.frame_map[name] = *frame
-	return frame
+	return self.frame_map[name]
 }
 
 func (self *Frames) Focus(elements []tview.Primitive, reverse bool) {

@@ -15,7 +15,6 @@ func (self *LogTextViewFrame) MakeFrame() tview.Primitive {
 	self.text_view = tview.NewTextView()
 
 	self.text_view.SetBorder(true).SetTitle("Log")
-	self.text_view.SetText("test")
 
 	return self.text_view
 }
