@@ -1,6 +1,7 @@
 package ui
 
 import (
+	fins "FinsEmu/Fins"
 	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
 	"fmt"
@@ -80,8 +81,14 @@ func (self *MainFrame) setCallBacks() {
 					break
 				}
 
-				buff := make([]byte, 128)
-				num, addr, err := self.frames.Udp.ReadFrom(buff)
+				recv_buff, addr, err := fins.RecvHostData(self.frames.Udp)
+
+				if err != nil {
+					self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
+					continue
+				}
+
+				fins.CheckFinsCommand(recv_buff)
 
 				if err != nil {
 					self.frames.App.QueueUpdateDraw(func() {
@@ -92,12 +99,12 @@ func (self *MainFrame) setCallBacks() {
 
 				self.frames.App.QueueUpdateDraw(func() {
 					str_port := strconv.Itoa(addr.Port)
-					s := fmt.Sprintf("From [%s:%s]:%s", addr.IP, str_port, buff[:num])
+					s := fmt.Sprintf("From [%s:%s]:%X", addr.IP, str_port, recv_buff)
 					self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
 
-					self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
-					s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
-					self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+					// self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
+					// s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
+					// self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
 
 				})
 			}
@@ -108,6 +115,7 @@ func (self *MainFrame) setCallBacks() {
 		err := self.frames.Udp.Close()
 		if err != nil {
 			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
+			self.frames.Connected = false
 			return
 		}
 		self.frames.Connected = false
@@ -116,7 +124,6 @@ func (self *MainFrame) setCallBacks() {
 
 	self.child_frames.command_frame.change_delete_form_callback = func() {
 		self.child_frames.convinient_frame.Change2DeleteFrame()
-
 	}
 
 	self.child_frames.address_frame.write_log_call = func(text string) {
