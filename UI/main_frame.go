@@ -95,7 +95,7 @@ func (self *MainFrame) setCallBacks() {
 				}
 
 				str_port := strconv.Itoa(addr.Port)
-				s := fmt.Sprintf("F [%s:%s]:%X", addr.IP, str_port, recv_buff)
+				s := fmt.Sprintf("Recv [%s:%s]:%X", addr.IP, str_port, recv_buff)
 				update_draw(s)
 
 				recv_param, err := fins.CheckFinsCommand(recv_buff)
@@ -106,8 +106,6 @@ func (self *MainFrame) setCallBacks() {
 				}
 
 				send_buff, err := fins.MakeSendCommand(self.frames.Udp, recv_param, addr.IP.String(), data_json_path)
-
-				update_draw(fmt.Sprintf("%x", send_buff))
 
 				if err != nil {
 					update_draw(err.Error())
@@ -121,8 +119,8 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				t := fmt.Sprintf("S [%s:%s]:%X", addr.IP, "", send_buff)
-				self.WriteLog(t, true)
+				t := fmt.Sprintf("Send [%s:%s]:%X", addr.IP, "", send_buff)
+				update_draw(t)
 
 				// self.frames.App.QueueUpdateDraw(func() {
 				// 	str_port := strconv.Itoa(addr.Port)
@@ -132,7 +130,6 @@ func (self *MainFrame) setCallBacks() {
 				// 	// self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
 				// 	// s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
 				// 	// self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
-
 				// })
 			}
 		}()
