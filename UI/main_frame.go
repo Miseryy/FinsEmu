@@ -52,7 +52,7 @@ func (self *MainFrame) setCallBacks() {
 
 		if self.frames.Connected {
 			s := fmt.Sprintf("!!Connected \nAddress::%s\nPort   ::%s", addr, port)
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+			self.WriteLog(s, true)
 		}
 
 		int_port, _ := strconv.Atoi(port)
@@ -61,7 +61,7 @@ func (self *MainFrame) setCallBacks() {
 		err := self.frames.Udp.Listen()
 
 		if err != nil {
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
+			self.WriteLog(err.Error(), true)
 			return
 		}
 
@@ -72,8 +72,14 @@ func (self *MainFrame) setCallBacks() {
 		self.child_frames.convinient_frame.Change2LogFrame()
 
 		s := fmt.Sprintf("Connect \nAddress::%s\nPort   ::%s", addr, port)
-		self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+		self.WriteLog(s, true)
 		self.frames.Connected = true
+
+		update_draw := func(text string) {
+			self.frames.App.QueueUpdateDraw(func() {
+				self.WriteLog(text, true)
+			})
+		}
 
 		go func() {
 			for {
@@ -84,29 +90,50 @@ func (self *MainFrame) setCallBacks() {
 				recv_buff, addr, err := fins.RecvHostData(self.frames.Udp)
 
 				if err != nil {
-					self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
+					update_draw(err.Error())
 					continue
 				}
 
-				fins.CheckFinsCommand(recv_buff)
+				str_port := strconv.Itoa(addr.Port)
+				s := fmt.Sprintf("F [%s:%s]:%X", addr.IP, str_port, recv_buff)
+				update_draw(s)
+
+				recv_param, err := fins.CheckFinsCommand(recv_buff)
 
 				if err != nil {
-					self.frames.App.QueueUpdateDraw(func() {
-						self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
-					})
+					update_draw(err.Error())
 					continue
 				}
 
-				self.frames.App.QueueUpdateDraw(func() {
-					str_port := strconv.Itoa(addr.Port)
-					s := fmt.Sprintf("From [%s:%s]:%X", addr.IP, str_port, recv_buff)
-					self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+				send_buff, err := fins.MakeSendCommand(self.frames.Udp, recv_param, addr.IP.String(), data_json_path)
 
-					// self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
-					// s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
-					// self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+				update_draw(fmt.Sprintf("%x", send_buff))
 
-				})
+				if err != nil {
+					update_draw(err.Error())
+					continue
+				}
+
+				_, err = self.frames.Udp.WriteTo(send_buff, addr)
+
+				if err != nil {
+					update_draw(err.Error())
+					continue
+				}
+
+				t := fmt.Sprintf("S [%s:%s]:%X", addr.IP, "", send_buff)
+				self.WriteLog(t, true)
+
+				// self.frames.App.QueueUpdateDraw(func() {
+				// 	str_port := strconv.Itoa(addr.Port)
+				// 	s := fmt.Sprintf("F [%s:%s]:%X", addr.IP, str_port, recv_buff)
+				// 	update_draw(s)
+
+				// 	// self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
+				// 	// s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
+				// 	// self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
+
+				// })
 			}
 		}()
 	}
@@ -136,9 +163,7 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 	self.frames.Udp = udp.New()
 	self.frames.Connected = false
 	self.address_json = jsonutil.New(setting_json_path)
-	// self.frames.FrameRegister()
 
-	// self.frames.Udp.Close()
 	self.child_frames = &ChildFrames{
 		convinient_frame: NewConvinientFrame(self.frames),
 		command_frame:    NewCommandFrame(self.frames),
@@ -165,6 +190,8 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 			self.child_frames.convinient_frame.Change2LogFrame()
 
 		case tcell.KeyCtrlL:
+			self.child_frames.convinient_frame.Change2LogFrame()
+			self.frames.App.SetFocus(self.frames.frame_map[LogTextFrameName])
 		}
 
 		return event
@@ -177,4 +204,8 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 	self.main_frame.AddItem(child_frames.convenient_page, 0, 1, 4, 1, 0, 0, true)
 
 	return self.main_frame
+}
+
+func (self *MainFrame) WriteLog(text string, new_line bool) {
+	self.child_frames.convinient_frame.log_text_frame.WriteLog(text, new_line)
 }

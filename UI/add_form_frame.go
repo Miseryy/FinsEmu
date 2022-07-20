@@ -40,13 +40,32 @@ func (self *AddFormFrame) checkHex(text string, ch rune) bool {
 	return false
 }
 
+func (self *AddFormFrame) checkDM(text string, ch rune) bool {
+	if !(ch >= '0' && ch <= '9') {
+		return false
+	}
+
+	const max = 32768
+
+	input_num, err := strconv.Atoi(text)
+	if err != nil {
+		return false
+	}
+
+	if max < input_num {
+		return false
+	}
+
+	return true
+}
+
 func (self *AddFormFrame) MakeFrame() tview.Primitive {
 	add_grid := tview.NewGrid()
 	add_form := self.frames.FrameRegister(AddDataFormFrameName, tview.NewForm()).(*tview.Form)
 
 	add_grid.SetBorder(true).SetTitle("Add Data")
-	add_form.AddInputField("DM", "", 20, tview.InputFieldInteger, nil)
-	add_form.AddInputField("Data(Hex)", "", 20, self.checkHex, nil)
+	add_form.AddInputField("DM (MAX:32767)", "", 20, self.checkDM, nil)
+	add_form.AddInputField("DATA (Hex)", "", 20, self.checkHex, nil)
 
 	add_form.AddButton("Save", func() {
 		dm_no := add_form.GetFormItem(0).(*tview.InputField).GetText()

@@ -39,10 +39,14 @@ func (self *CommandFrame) MakeFrame() tview.Primitive {
 		AddItem("Connect Close", "Close UDP", 'e', func() {
 			self.close_udp_callback()
 		}).
+		AddItem("Settings", "", 's', func() {
+
+		}).
 		AddItem("ResetLog", "", 'r', func() {
 			self.reset_log_callback()
 		}).
 		AddItem("Quit", "", 'q', func() {
+			self.close_udp_callback()
 			self.frames.App.Stop()
 		})
 

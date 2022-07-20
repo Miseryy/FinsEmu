@@ -37,6 +37,15 @@ func NewAddressFrame(j *jsonutil.MyJson, f *Frames) *AddressFrame {
 	}
 }
 
+func (self *AddressFrame) checkAddressInputs(text string, ch rune) bool {
+	if ch >= '0' && ch <= '9' ||
+		ch == '.' {
+		return true
+	}
+
+	return false
+}
+
 func (self *AddressFrame) MakeFrame() tview.Primitive {
 	e := self.js.LoadJson()
 	if e != nil {
@@ -101,7 +110,7 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 	address_main := tview.NewFlex()
 	self.address_form = tview.NewForm()
 
-	self.address_form.AddInputField("Address", "", 40, nil, nil)
+	self.address_form.AddInputField("Address", "", 40, self.checkAddressInputs, nil)
 	self.address_form.AddInputField("Port", "", 40, tview.InputFieldInteger, nil)
 
 	address_main.SetBorder(true).SetTitle("Address & Port <A>")
