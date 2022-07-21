@@ -14,6 +14,10 @@ type Fins struct {
 }
 
 type RecvParam struct {
+	DNA        byte
+	DA1        byte
+	SNA        byte
+	SA1        byte
 	SID        byte
 	COMMCODE1  byte
 	COMMCODE2  byte
@@ -37,31 +41,49 @@ func getIP4digit(ip string) int {
 
 }
 
+func rangeCheck(v, min, max int) (bool, error) {
+	if min > max {
+		return false, errors.New("MIN > MAX")
+	}
+
+	if v < min {
+		return false, nil
+	}
+
+	if v > max {
+		return false, nil
+	}
+
+	return true, nil
+
+}
+
 func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_path string) ([]byte, error) {
 	js := jsonutil.New(json_path)
 	js.LoadJson()
 
 	json_map := js.GetMap()
+	start_pos := (int(recv_param.START_READ[0]) << 8) + int(recv_param.START_READ[1])
 	read_size := (int(recv_param.READ_SIZE[0]) << 8) + int(recv_param.READ_SIZE[1])
 
 	buff_len := 13 + read_size
 	fmt.Println(buff_len)
 
 	send_buff := make([]byte, buff_len)
-	da1 := getIP4digit(ip)
+	// da1 := getIP4digit(ip)
 
-	addr, _ := sock.GetAddressAndPort()
+	// addr, _ := sock.GetAddressAndPort()
 
-	digit4 := getIP4digit(addr)
+	// digit4 := getIP4digit(addr)
 
 	send_buff[0] = 0xC1           // ICF
 	send_buff[1] = 0x00           // RSV
 	send_buff[2] = 0x02           // GCT
-	send_buff[3] = 0x00           // DNA
-	send_buff[4] = byte(da1)      // DA1
+	send_buff[3] = recv_param.SNA // DNA
+	send_buff[4] = recv_param.SA1 // DA1
 	send_buff[5] = 0x00           // DA2
-	send_buff[6] = 0x00           // SNA
-	send_buff[7] = byte(digit4)   // SA1
+	send_buff[6] = recv_param.DNA // SNA
+	send_buff[7] = recv_param.DA1 // SA1
 	send_buff[8] = 0x00           // SA2
 	send_buff[9] = recv_param.SID // SID
 	send_buff[10] = recv_param.COMMCODE1
@@ -74,14 +96,27 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 
 	v := json_map
 	_ = v
-	for _, v := range json_map {
-		if read_size > max {
-			return nil, errors.New("Read Size Over")
-		}
-		_ = v
-		// if recv_param.START_READ > k {
-		// }
+
+	if read_size > max {
+		return nil, errors.New("Read Size Over")
 	}
+
+	end_pos := start_pos + read_size
+
+	var regist_dmnumber [][]int
+
+	for k, v := range json_map {
+		value := v.(float64)
+		num_key, _ := strconv.Atoi(k)
+		if f, err := rangeCheck(num_key, start_pos, end_pos); err != nil && f {
+			unit := []int{num_key, int(value)}
+			regist_dmnumber = append(regist_dmnumber, unit)
+		}
+	}
+
+	fmt.Println(regist_dmnumber)
+
+	// regist_dmnumber[0]
 
 	// recv_param.IO_MEM
 
@@ -101,11 +136,11 @@ func CheckFinsCommand(buff []byte) (RecvParam, error) {
 	// R_ICF := buff[0]
 	// R_RSV := buff[1]
 	// R_GCT := buff[2]
-	// R_DNA := buff[3]
-	// R_DA1 := buff[4]
+	R_DNA := buff[3]
+	R_DA1 := buff[4]
 	// R_DA2 := buff[5]
-	// R_SNA := buff[6]
-	// R_SA1 := buff[7]
+	R_SNA := buff[6]
+	R_SA1 := buff[7]
 	// R_SA2 := buff[8]
 	R_SID := buff[9]
 	R_COMMCODE1 := buff[10]
@@ -118,6 +153,10 @@ func CheckFinsCommand(buff []byte) (RecvParam, error) {
 		return recv_param, errors.New("Only DM Area")
 	}
 
+	recv_param.DNA = R_DNA
+	recv_param.DA1 = R_DA1
+	recv_param.SNA = R_SNA
+	recv_param.SA1 = R_SA1
 	recv_param.SID = R_SID
 	recv_param.COMMCODE1 = R_COMMCODE1
 	recv_param.COMMCODE2 = R_COMMCODE2

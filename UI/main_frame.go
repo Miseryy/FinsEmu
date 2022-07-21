@@ -65,13 +65,14 @@ func (self *MainFrame) setCallBacks() {
 			return
 		}
 
-		self.address_json.AddItemString("address", addr).
+		self.address_json.
+			AddItemString("address", addr).
 			AddItemInt("port", int64(int_port)).
 			WriteJson()
 
 		self.child_frames.convinient_frame.Change2LogFrame()
 
-		s := fmt.Sprintf("Connect \nAddress::%s\nPort   ::%s", addr, port)
+		s := fmt.Sprintf("Connect \nAddress::%s\nPort   ::%s\n\n", addr, port)
 		self.WriteLog(s, true)
 		self.frames.Connected = true
 
@@ -119,7 +120,7 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				t := fmt.Sprintf("Send [%s:%s]:%X", addr.IP, "", send_buff)
+				t := fmt.Sprintf("Send [%s:%d]:%X", addr.IP, addr.Port, send_buff)
 				update_draw(t)
 
 				// self.frames.App.QueueUpdateDraw(func() {
