@@ -4,7 +4,6 @@ import (
 	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
 	"errors"
-	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -66,15 +65,10 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 	start_pos := (int(recv_param.START_READ[0]) << 8) + int(recv_param.START_READ[1])
 	read_size := (int(recv_param.READ_SIZE[0]) << 8) + int(recv_param.READ_SIZE[1])
 
-	buff_len := 13 + read_size
-	fmt.Println(buff_len)
+	const fins_command_len = 14
+	buff_len := fins_command_len + (read_size * 2)
 
 	send_buff := make([]byte, buff_len)
-	// da1 := getIP4digit(ip)
-
-	// addr, _ := sock.GetAddressAndPort()
-
-	// digit4 := getIP4digit(addr)
 
 	send_buff[0] = 0xC1           // ICF
 	send_buff[1] = 0x00           // RSV
@@ -94,9 +88,6 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 	// max 999
 	const max = 999
 
-	v := json_map
-	_ = v
-
 	if read_size > max {
 		return nil, errors.New("Read Size Over")
 	}
@@ -108,17 +99,33 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 	for k, v := range json_map {
 		value := v.(float64)
 		num_key, _ := strconv.Atoi(k)
-		if f, err := rangeCheck(num_key, start_pos, end_pos); err != nil && f {
+
+		if f, err := rangeCheck(num_key, start_pos, end_pos); err == nil && f {
 			unit := []int{num_key, int(value)}
 			regist_dmnumber = append(regist_dmnumber, unit)
 		}
 	}
 
-	fmt.Println(regist_dmnumber)
+	for i := 0; i < end_pos-start_pos; i++ {
+		read_num := strconv.Itoa(start_pos + i)
+		high := fins_command_len + i*2
+		low := fins_command_len + i*2 + 1
 
-	// regist_dmnumber[0]
+		v, e := json_map[read_num]
 
-	// recv_param.IO_MEM
+		if !e {
+			send_buff[high] = byte(0)
+			send_buff[low] = byte(0)
+			continue
+		}
+
+		value := int(v.(float64))
+
+		high_hex := value >> 8
+		low_hex := value & 0x00ff
+		send_buff[high] = byte(high_hex)
+		send_buff[low] = byte(low_hex)
+	}
 
 	return send_buff, nil
 }
