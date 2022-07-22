@@ -94,18 +94,6 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 
 	end_pos := start_pos + read_size
 
-	var regist_dmnumber [][]int
-
-	for k, v := range json_map {
-		value := v.(float64)
-		num_key, _ := strconv.Atoi(k)
-
-		if f, err := rangeCheck(num_key, start_pos, end_pos); err == nil && f {
-			unit := []int{num_key, int(value)}
-			regist_dmnumber = append(regist_dmnumber, unit)
-		}
-	}
-
 	for i := 0; i < end_pos-start_pos; i++ {
 		read_num := strconv.Itoa(start_pos + i)
 		high := fins_command_len + i*2

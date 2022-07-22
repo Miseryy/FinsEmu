@@ -53,6 +53,7 @@ func (self *MainFrame) setCallBacks() {
 		if self.frames.Connected {
 			s := fmt.Sprintf("!!Connected \nAddress::%s\nPort   ::%s", addr, port)
 			self.WriteLog(s, true)
+			return
 		}
 
 		int_port, _ := strconv.Atoi(port)
