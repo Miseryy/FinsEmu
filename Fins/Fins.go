@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-type Fins struct {
-}
-
 type RecvParam struct {
 	DNA        byte
 	DA1        byte
@@ -70,7 +67,7 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 
 	send_buff := make([]byte, buff_len)
 
-	send_buff[0] = 0xC1           // ICF
+	send_buff[0] = 0xC0           // ICF
 	send_buff[1] = 0x00           // RSV
 	send_buff[2] = 0x02           // GCT
 	send_buff[3] = recv_param.SNA // DNA
