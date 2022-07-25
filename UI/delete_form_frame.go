@@ -32,9 +32,10 @@ func (self *DeleteFormFrame) MakeFrame() tview.Primitive {
 func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 	self.js.LoadJson()
 	items := self.js.GetMap()
-	var keys []string
+	var keys []int
 	for key := range items {
-		keys = append(keys, key)
+		i_key, _ := strconv.Atoi(key)
+		keys = append(keys, i_key)
 	}
 
 	table.SetSelectable(true, false)
@@ -42,17 +43,18 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 	table.SetCell(0, 0, tview.NewTableCell("DM").SetTextColor(tcell.ColorYellow))
 	table.SetCell(0, 1, tview.NewTableCell("Data(Hex)").SetTextColor(tcell.ColorYellow))
 
-	sort.Strings(keys)
+	sort.Ints(keys)
 
 	for i, k := range keys {
-		val := items[k]
+		kk := strconv.Itoa(k)
+		val := items[kk]
 		var value int
 		switch v := val.(type) {
 		case float64:
 			value = int(v)
 		}
 
-		table.SetCell(i+1, 0, tview.NewTableCell(k))
+		table.SetCell(i+1, 0, tview.NewTableCell(kk))
 		table.SetCell(i+1, 1, tview.NewTableCell(strconv.FormatInt(int64(value), 16)))
 	}
 
