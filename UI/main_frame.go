@@ -96,8 +96,7 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				str_port := strconv.Itoa(addr.Port)
-				s := fmt.Sprintf("Recv [%s:%s]:%X", addr.IP, str_port, recv_buff)
+				s := fmt.Sprintf("Recv [%s:%d]:%X", addr.IP, addr.Port, recv_buff)
 				update_draw(s)
 
 				recv_param, err := fins.CheckFinsCommand(recv_buff)
@@ -123,16 +122,6 @@ func (self *MainFrame) setCallBacks() {
 
 				t := fmt.Sprintf("Send [%s:%d]:%X", addr.IP, addr.Port, send_buff)
 				update_draw(t)
-
-				// self.frames.App.QueueUpdateDraw(func() {
-				// 	str_port := strconv.Itoa(addr.Port)
-				// 	s := fmt.Sprintf("F [%s:%s]:%X", addr.IP, str_port, recv_buff)
-				// 	update_draw(s)
-
-				// 	// self.frames.Udp.WriteTo([]byte(buff[:num]), addr)
-				// 	// s = fmt.Sprintf("Send [%s:%s]:%s", addr.IP, str_port, string(buff[:num]))
-				// 	// self.child_frames.convinient_frame.log_text_frame.WriteLog(s, true)
-				// })
 			}
 		}()
 	}
