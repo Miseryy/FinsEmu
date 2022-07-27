@@ -53,7 +53,6 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 	}
 
 	json_map := self.js.GetMap()
-	fmt.Println(json_map)
 
 	elements := []tview.Primitive{
 		self.AddressP.address_IF,

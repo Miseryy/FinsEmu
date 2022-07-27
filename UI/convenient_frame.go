@@ -12,7 +12,7 @@ type ConvinientFrame struct {
 	log_text_frame   *LogTextViewFrame
 	add_frame        *AddFormFrame
 	delete_frame     *DeleteFormFrame
-	convinient_frame *tview.Pages
+	convenient_frame *tview.Pages
 	add_form         *tview.Grid
 	delete_table     *tview.Table
 	log_text         string
@@ -34,7 +34,7 @@ const (
 
 func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	js := jsonutil.New(data_json_path)
-	self.convinient_frame = self.frames.FrameRegister(ConvinientFrameName, tview.NewPages()).(*tview.Pages)
+	self.convenient_frame = self.frames.FrameRegister(ConvenientFrameName, tview.NewPages()).(*tview.Pages)
 	self.log_text_frame = NewLogTextViewFrame()
 	self.add_frame = NewAddFormFrame(self.frames, js)
 	self.delete_frame = NewDeleteFormFrame(js)
@@ -63,25 +63,25 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 		self.Change2LogFrame()
 	}
 
-	self.convinient_frame.
+	self.convenient_frame.
 		AddPage(Log, log_text_view, true, true).
 		AddPage(Add, self.add_form, true, false).
 		AddPage(Del, self.delete_table, true, false)
 
-	return self.convinient_frame
+	return self.convenient_frame
 }
 
 func (self *ConvinientFrame) Change2LogFrame() {
-	self.convinient_frame.SwitchToPage(Log)
+	self.convenient_frame.SwitchToPage(Log)
 }
 
 func (self *ConvinientFrame) Change2AddDataFrame() {
-	self.convinient_frame.SwitchToPage(Add)
+	self.convenient_frame.SwitchToPage(Add)
 	self.frames.App.SetFocus(self.frames.frame_map[AddDataFormFrameName])
 }
 
 func (self *ConvinientFrame) Change2DeleteFrame() {
-	self.convinient_frame.SwitchToPage(Del)
+	self.convenient_frame.SwitchToPage(Del)
 	self.delete_frame.makeCells(self.delete_table)
 	self.frames.App.SetFocus(self.delete_table)
 }

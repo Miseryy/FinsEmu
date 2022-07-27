@@ -129,7 +129,7 @@ func (self *MainFrame) setCallBacks() {
 	self.child_frames.command_frame.close_udp_callback = func() {
 		err := self.frames.Udp.Close()
 		if err != nil {
-			self.child_frames.convinient_frame.log_text_frame.WriteLog(err.Error(), true)
+			self.WriteLog(err.Error(), true)
 			self.frames.Connected = false
 			return
 		}
@@ -142,7 +142,7 @@ func (self *MainFrame) setCallBacks() {
 	}
 
 	self.child_frames.address_frame.write_log_call = func(text string) {
-		self.child_frames.convinient_frame.log_text_frame.WriteLog(text, true)
+		self.WriteLog(text, true)
 	}
 
 }

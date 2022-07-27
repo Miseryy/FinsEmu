@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"errors"
 	"net"
 	"strconv"
 )
@@ -42,8 +43,7 @@ func (self *Udp_Sock) WriteTo(buf []byte, addr *net.UDPAddr) (int, error) {
 
 func (self *Udp_Sock) Close() error {
 	if self.udpLn == nil {
-		return nil
-
+		return errors.New("Closed")
 	}
 
 	e := self.udpLn.Close()

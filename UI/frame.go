@@ -3,7 +3,6 @@ package ui
 import (
 	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -16,7 +15,7 @@ const (
 	CommandFrameName               = "Comm_F"
 	CommandListFrameName           = "CommList_F"
 
-	ConvinientFrameName = "Conv_F"
+	ConvenientFrameName = "Conv_F"
 
 	// LogFrame
 	LogTextFrameName = "LogText_F"
@@ -41,14 +40,8 @@ type Frames struct {
 	setting_json *jsonutil.MyJson
 }
 
-// func (self *Frames) MakePageFrame(name string, frame *tview.Pages) *tview.Pages {
-// 	self.frame_map[name] = frame
-// 	return frame
-// }
-
 func (self *Frames) FrameRegister(name FrameName, frame tview.Primitive) tview.Primitive {
 	if self.frame_map == nil {
-		fmt.Println("New")
 		self.frame_map = make(map[FrameName]tview.Primitive)
 	}
 

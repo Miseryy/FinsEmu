@@ -23,6 +23,7 @@ func NewDeleteFormFrame(j *jsonutil.MyJson) *DeleteFormFrame {
 func (self *DeleteFormFrame) MakeFrame() tview.Primitive {
 	table := tview.NewTable().SetBorders(true)
 	table.SetBorder(true).SetTitle("Delete DM Data")
+	table.SetBorderPadding(0, 0, 10, 10)
 
 	self.makeCells(table)
 

@@ -40,9 +40,8 @@ func (self *CommandFrame) MakeFrame() tview.Primitive {
 			self.close_udp_callback()
 		}).
 		AddItem("Settings", "", 's', func() {
-
 		}).
-		AddItem("ResetLog", "", 'r', func() {
+		AddItem("ClearLog", "", 'r', func() {
 			self.reset_log_callback()
 		}).
 		AddItem("Quit", "", 'q', func() {
