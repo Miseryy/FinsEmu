@@ -31,5 +31,6 @@ func (self *LogTextViewFrame) WriteLog(text string, new_line bool) {
 }
 
 func (self *LogTextViewFrame) ResetLog() {
+	self.log_text = ""
 	self.text_view.SetText("")
 }
