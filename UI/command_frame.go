@@ -36,7 +36,7 @@ func (self *CommandFrame) MakeFrame() tview.Primitive {
 		AddItem("Connect", "Connect UDP", 'c', func() {
 			self.connect_udp_callback()
 		}).
-		AddItem("Connect Close", "Close UDP", 'e', func() {
+		AddItem("Close", "Close UDP", 'e', func() {
 			self.close_udp_callback()
 		}).
 		AddItem("Settings", "", 's', func() {

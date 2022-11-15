@@ -97,6 +97,39 @@ func (self *MainFrame) setCallBacks() {
 				}
 
 				s := fmt.Sprintf("Recv [%s:%d]:%X", addr.IP, addr.Port, recv_buff)
+				command_code := recv_buff[10:12]
+
+				if command_code[0] == 0x01 && command_code[1] == 0x02 {
+					data_js := jsonutil.New(data_json_path)
+					dm_pos_arr := recv_buff[13:15]
+					_ = data_js
+					dm_pos := int(dm_pos_arr[0])
+					// write DM position
+					dm_pos = (dm_pos << 8) + int(dm_pos_arr[1])
+					write_count := int(recv_buff[17])
+
+					data_js.LoadJson()
+					for i := 0; i < write_count; i++ {
+						// data_js.AddItemInt(dm_pos)
+						data_array := recv_buff[18+(i*2) : 20+(i*2)]
+						data := int(data_array[0])
+						data = (data << 8) + int(data_array[1])
+
+						// update_draw(fmt.Sprintf("%d", data))
+						data_js.AddItemInt(strconv.Itoa(dm_pos), int64(data))
+						dm_pos += 1
+
+					}
+
+					data_js.WriteJson()
+
+					// update_draw(fmt.Sprintf("%X", dm_pos_arr[0]<<7))
+					// update_draw(fmt.Sprintf("%d", write_count))
+					// update_draw(fmt.Sprintf("%d", dm_pos))
+					// data_js.AddItemInt()
+
+				}
+
 				update_draw(s)
 
 				recv_param, err := fins.CheckFinsCommand(recv_buff)
