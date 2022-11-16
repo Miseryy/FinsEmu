@@ -2,6 +2,7 @@ package ui
 
 import (
 	jsonutil "FinsEmu/JsonUtil"
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -41,8 +42,8 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 
 	table.SetSelectable(true, false)
 
-	table.SetCell(0, 0, tview.NewTableCell("DM").SetTextColor(tcell.ColorYellow))
-	table.SetCell(0, 1, tview.NewTableCell("Data(Hex)").SetTextColor(tcell.ColorYellow))
+	table.SetCell(0, 0, tview.NewTableCell("DM").SetTextColor(tcell.ColorBlack).SetBackgroundColor(tcell.ColorRed).SetAlign(tview.AlignCenter).SetExpansion(1).SetMaxWidth(10))
+	table.SetCell(0, 1, tview.NewTableCell("Data(Hex)").SetTextColor(tcell.ColorBlack).SetBackgroundColor(tcell.ColorRed).SetAlign(tview.AlignCenter).SetExpansion(1).SetMaxWidth(6))
 
 	sort.Ints(keys)
 
@@ -55,23 +56,20 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 			value = int(v)
 		}
 
-		table.SetCell(i+1, 0, tview.NewTableCell(kk))
-		table.SetCell(i+1, 1, tview.NewTableCell(strconv.FormatInt(int64(value), 16)))
+		table.SetCell(i+1, 0, tview.NewTableCell(kk).SetAlign(tview.AlignCenter))
+		hex_fmt := fmt.Sprintf("0x%04X", value)
+		table.SetCell(i+1, 1, tview.NewTableCell(hex_fmt).SetAlign(tview.AlignCenter))
 	}
 
 	table.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
 			self.change2LogFrame_call()
 		}
-
 	})
 
-	table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
+	table.Select(1, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
 			self.change2LogFrame_call()
-		}
-		if key == tcell.KeyEnter {
-
 		}
 	}).SetSelectedFunc(func(row int, column int) {
 		table.GetCell(row, column).SetTextColor(tcell.ColorRed)
@@ -79,5 +77,10 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 		self.js.DeleteItem(key).WriteJson()
 		table.Clear()
 		self.makeCells(table)
+	}).SetSelectionChangedFunc(func(row, column int) {
+		if row == 0 {
+			table.Select(1, 0)
+			return
+		}
 	})
 }
