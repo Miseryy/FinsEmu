@@ -61,12 +61,6 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 		table.SetCell(i+1, 1, tview.NewTableCell(hex_fmt).SetAlign(tview.AlignCenter))
 	}
 
-	table.SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyEscape {
-			self.change2LogFrame_call()
-		}
-	})
-
 	table.Select(1, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
 			self.change2LogFrame_call()

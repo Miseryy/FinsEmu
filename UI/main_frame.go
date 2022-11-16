@@ -66,10 +66,15 @@ func (self *MainFrame) setCallBacks() {
 			return
 		}
 
-		self.address_json.
+		err = self.address_json.
 			AddItemString("address", addr).
 			AddItemInt("port", int64(int_port)).
 			WriteJson()
+
+		if err != nil {
+			self.WriteLog(err.Error(), true)
+			return
+		}
 
 		self.child_frames.convinient_frame.Change2LogFrame()
 
@@ -126,7 +131,12 @@ func (self *MainFrame) setCallBacks() {
 
 					}
 
-					data_js.WriteJson()
+					err = data_js.WriteJson()
+
+					if err != nil {
+						self.WriteLog(err.Error(), true)
+						return
+					}
 
 				}
 
