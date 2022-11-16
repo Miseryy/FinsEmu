@@ -51,7 +51,7 @@ func (self *MainFrame) setCallBacks() {
 		port := self.child_frames.address_frame.address_form.GetFormItem(1).(*tview.InputField).GetText()
 
 		if self.frames.Connected {
-			s := fmt.Sprintf("!!Connected \nAddress::%s\nPort   ::%s", addr, port)
+			s := fmt.Sprintf("[yellow]!!Connected \nAddress::%s\nPort   ::%s[white]", addr, port)
 			self.WriteLog(s, true)
 			return
 		}
@@ -73,7 +73,7 @@ func (self *MainFrame) setCallBacks() {
 
 		self.child_frames.convinient_frame.Change2LogFrame()
 
-		s := fmt.Sprintf("Connect \nAddress::%s\nPort   ::%s\n\n", addr, port)
+		s := fmt.Sprintf("[green]Connect \nAddress::%s\nPort   ::%s\n\n[white]", addr, port)
 		self.WriteLog(s, true)
 		self.frames.Connected = true
 
@@ -96,13 +96,12 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				s := fmt.Sprintf("Recv [%s:%d]:%X", addr.IP, addr.Port, recv_buff)
+				s := fmt.Sprintf("[orange]Recv [%s:%d]:%X[white]", addr.IP, addr.Port, recv_buff)
 				command_code := recv_buff[10:12]
 
 				if command_code[0] == 0x01 && command_code[1] == 0x02 {
 					data_js := jsonutil.New(data_json_path)
 					dm_pos_arr := recv_buff[13:15]
-					_ = data_js
 					dm_pos := int(dm_pos_arr[0])
 					// write DM position
 					dm_pos = (dm_pos << 8) + int(dm_pos_arr[1])
@@ -122,7 +121,6 @@ func (self *MainFrame) setCallBacks() {
 						data := int(data_array[0])
 						data = (data << 8) + int(data_array[1])
 
-						// update_draw(fmt.Sprintf("%d", data))
 						data_js.AddItemInt(strconv.Itoa(dm_pos), int64(data))
 						dm_pos += 1
 
@@ -155,7 +153,7 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				t := fmt.Sprintf("Send [%s:%d]:%X", addr.IP, addr.Port, send_buff)
+				t := fmt.Sprintf("[#00CED1]Send [%s:%d]:%X[white]", addr.IP, addr.Port, send_buff)
 				update_draw(t)
 			}
 		}()
