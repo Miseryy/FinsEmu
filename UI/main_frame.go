@@ -110,8 +110,15 @@ func (self *MainFrame) setCallBacks() {
 
 					data_js.LoadJson()
 					for i := 0; i < write_count; i++ {
-						// data_js.AddItemInt(dm_pos)
-						data_array := recv_buff[18+(i*2) : 20+(i*2)]
+						start_pos := 18 + (i * 2)
+						end_pos := 20 + (i * 2)
+
+						if start_pos > len(recv_buff) || end_pos > len(recv_buff) {
+							update_draw("[red]ERROR::WRITE POSITION OUT OF RANGE[white]")
+							break
+						}
+
+						data_array := recv_buff[start_pos:end_pos]
 						data := int(data_array[0])
 						data = (data << 8) + int(data_array[1])
 
@@ -122,11 +129,6 @@ func (self *MainFrame) setCallBacks() {
 					}
 
 					data_js.WriteJson()
-
-					// update_draw(fmt.Sprintf("%X", dm_pos_arr[0]<<7))
-					// update_draw(fmt.Sprintf("%d", write_count))
-					// update_draw(fmt.Sprintf("%d", dm_pos))
-					// data_js.AddItemInt()
 
 				}
 

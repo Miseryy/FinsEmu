@@ -13,7 +13,7 @@ func NewLogTextViewFrame() *LogTextViewFrame {
 
 func (self *LogTextViewFrame) MakeFrame() tview.Primitive {
 	self.text_view = tview.NewTextView()
-
+	self.text_view.SetDynamicColors(true)
 	self.text_view.SetBorder(true).SetTitle("Log")
 
 	return self.text_view
