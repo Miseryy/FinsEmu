@@ -137,7 +137,6 @@ func (self *MainFrame) setCallBacks() {
 						self.WriteLog(err.Error(), true)
 						return
 					}
-
 				}
 
 				update_draw(s)

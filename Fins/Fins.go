@@ -82,6 +82,11 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 	send_buff[12] = 0x00 // end code
 	send_buff[13] = 0x00 // end code
 
+	// write command
+	if send_buff[10] == 0x01 && send_buff[11] == 0x02 {
+		return send_buff[:13], nil
+	}
+
 	// max 999
 	const max = 999
 
