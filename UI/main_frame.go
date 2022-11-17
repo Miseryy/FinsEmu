@@ -228,7 +228,6 @@ func (self *MainFrame) MakeFrame() tview.Primitive {
 	})
 
 	self.main_frame.SetRows(7, 0, 8).SetColumns(45, 0)
-	// self.main_frame.SetBackgroundColor(tcell.ColorWhite)
 	self.main_frame.AddItem(child_frames.address_flex, 0, 0, 1, 1, 0, 0, true)
 	self.main_frame.AddItem(child_frames.command_page, 1, 0, 3, 1, 0, 0, true)
 	self.main_frame.AddItem(child_frames.convenient_page, 0, 1, 4, 1, 0, 0, true)

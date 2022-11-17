@@ -36,8 +36,8 @@ func (self *ConvinientFrame) MakeFrame() tview.Primitive {
 	js := jsonutil.New(data_json_path)
 	self.convenient_frame = self.frames.FrameRegister(ConvenientFrameName, tview.NewPages()).(*tview.Pages)
 	self.log_text_frame = NewLogTextViewFrame()
-	self.add_frame = NewAddFormFrame(self.frames, js)
-	self.delete_frame = NewDeleteFormFrame(js)
+	self.add_frame = NewAddFormFrame(self.frames)
+	self.delete_frame = NewDeleteFormFrame()
 
 	self.add_form = self.frames.FrameRegister(AddDataGridFrameName, self.add_frame.MakeFrame()).(*tview.Grid)
 	log_text_view := self.frames.FrameRegister(LogTextFrameName, self.log_text_frame.MakeFrame()).(*tview.TextView)

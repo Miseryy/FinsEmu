@@ -11,13 +11,11 @@ import (
 type AddFormFrame struct {
 	Change2LogFrameCall func()
 	WriteLog            func(string)
-	js                  *jsonutil.MyJson
 	frames              *Frames
 }
 
-func NewAddFormFrame(f *Frames, j *jsonutil.MyJson) *AddFormFrame {
+func NewAddFormFrame(f *Frames) *AddFormFrame {
 	return &AddFormFrame{
-		js:     j,
 		frames: f,
 	}
 
@@ -64,7 +62,7 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 	add_form := self.frames.FrameRegister(AddDataFormFrameName, tview.NewForm()).(*tview.Form)
 
 	add_grid.SetBorder(true).SetTitle("Add Data")
-	add_form.AddInputField("DM (MAX:32767)", "", 20, self.checkDM, nil)
+	add_form.AddInputField("DM (0~32767)", "", 20, self.checkDM, nil)
 	add_form.AddInputField("DATA (Hex)", "", 20, self.checkHex, nil)
 
 	add_form.AddButton("Save", func() {
@@ -90,8 +88,16 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 			return
 		}
 
-		self.js.AddItemInt(dm_no, i_data)
-		err = self.js.WriteJson()
+		js := jsonutil.New(data_json_path)
+		err = js.LoadJson()
+		if err != nil {
+			s := fmt.Sprint(err)
+			self.WriteLog(s)
+			return
+		}
+
+		js.AddItemInt(dm_no, i_data)
+		err = js.WriteJson()
 
 		if err != nil {
 			s := fmt.Sprint(err)

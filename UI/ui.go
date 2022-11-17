@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/rivo/tview"
@@ -14,6 +15,16 @@ var (
 )
 
 func RunApp() {
+	if _, err := os.Stat(data_json_path); err != nil {
+		f, err := os.Create(data_json_path)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		f.Write([]byte("{}"))
+		f.Close()
+	}
+
 	app := tview.NewApplication()
 	frames := Frames{
 		App: app,

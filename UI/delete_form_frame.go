@@ -11,14 +11,11 @@ import (
 )
 
 type DeleteFormFrame struct {
-	js                   *jsonutil.MyJson
 	change2LogFrame_call func()
 }
 
-func NewDeleteFormFrame(j *jsonutil.MyJson) *DeleteFormFrame {
-	return &DeleteFormFrame{
-		js: j,
-	}
+func NewDeleteFormFrame() *DeleteFormFrame {
+	return &DeleteFormFrame{}
 }
 
 func (self *DeleteFormFrame) MakeFrame() tview.Primitive {
@@ -32,8 +29,9 @@ func (self *DeleteFormFrame) MakeFrame() tview.Primitive {
 }
 
 func (self *DeleteFormFrame) makeCells(table *tview.Table) {
-	self.js.LoadJson()
-	items := self.js.GetMap()
+	js := jsonutil.New(data_json_path)
+	js.LoadJson()
+	items := js.GetMap()
 	var keys []int
 	for key := range items {
 		i_key, _ := strconv.Atoi(key)
@@ -68,7 +66,7 @@ func (self *DeleteFormFrame) makeCells(table *tview.Table) {
 	}).SetSelectedFunc(func(row int, column int) {
 		table.GetCell(row, column).SetTextColor(tcell.ColorRed)
 		key := table.GetCell(row, 0).Text
-		self.js.DeleteItem(key).WriteJson()
+		js.DeleteItem(key).WriteJson()
 		table.Clear()
 		self.makeCells(table)
 	}).SetSelectionChangedFunc(func(row, column int) {
