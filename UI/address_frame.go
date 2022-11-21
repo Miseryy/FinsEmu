@@ -72,7 +72,6 @@ func (self *AddressFrame) MakeFrame() tview.Primitive {
 		p, _ := strconv.Atoi(port)
 		self.SetAddress(addr, p)
 		s := fmt.Sprintf("Set Address And Port\nAddress::%s\nPort::%s\n", addr, port)
-		// self.frames.WriteLog(s)
 		self.write_log_call(s)
 
 	})
