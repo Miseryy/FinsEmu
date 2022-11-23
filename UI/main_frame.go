@@ -5,7 +5,10 @@ import (
 	jsonutil "FinsEmu/JsonUtil"
 	udp "FinsEmu/UDP"
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -166,6 +169,35 @@ func (self *MainFrame) setCallBacks() {
 				update_draw(t)
 			}
 		}()
+	}
+
+	self.child_frames.command_frame.export_log_callback = func() {
+		log_text := self.child_frames.convinient_frame.log_text_frame.log_text
+		var file *os.File
+		loc := time.FixedZone("Asia/Tokyo", 9*60*60)
+		_log_path := log_path + time.Now().In(loc).Format("2006-01-02_15-04-05") + ".log"
+		file, err := os.OpenFile(_log_path, os.O_WRONLY|os.O_APPEND, 0755)
+		if err != nil {
+			file, err = os.Create(_log_path)
+			if err != nil {
+				self.WriteLog(log_path+" File OpenError", true)
+				return
+			}
+		}
+
+		defer file.Close()
+
+		first_pos := strings.Index(log_text, "]")
+		end_pos := strings.LastIndex(log_text, "[")
+
+		_, err = file.Write([]byte(log_text[first_pos+1 : end_pos]))
+		if err != nil {
+			self.WriteLog("Export Failed", true)
+			return
+		}
+
+		self.WriteLog("Export Success", true)
+
 	}
 
 	self.child_frames.command_frame.close_udp_callback = func() {

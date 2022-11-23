@@ -104,6 +104,7 @@ func MakeSendCommand(sock *udp.Udp_Sock, recv_param RecvParam, ip string, json_p
 		v, e := json_map[read_num]
 
 		if !e {
+			// not regist data
 			send_buff[high] = byte(0)
 			send_buff[low] = byte(0)
 			continue
@@ -162,8 +163,4 @@ func CheckFinsCommand(buff []byte) (RecvParam, error) {
 	recv_param.READ_SIZE = READ_SIZE
 
 	return recv_param, nil
-}
-
-func SendPLCData(sock udp.Udp_Sock) error {
-	return nil
 }

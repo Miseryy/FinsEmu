@@ -12,6 +12,7 @@ var (
 	curent_dir, _     = os.Getwd()
 	data_json_path    = curent_dir + "/data.json"
 	setting_json_path = curent_dir + "/setting.json"
+	log_path          = curent_dir + "/data"
 )
 
 func RunApp() {

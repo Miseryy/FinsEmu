@@ -68,6 +68,7 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 	add_form.AddButton("Save", func() {
 		dm_no := add_form.GetFormItem(0).(*tview.InputField).GetText()
 		data := add_form.GetFormItem(1).(*tview.InputField).GetText()
+		add_form.SetFocus(0)
 
 		if !(len(dm_no) > 0) || !(len(data) > 0) {
 			self.Change2LogFrameCall()
@@ -120,10 +121,12 @@ func (self *AddFormFrame) MakeFrame() tview.Primitive {
 		add_form.GetFormItem(0).(*tview.InputField).SetText("")
 		add_form.GetFormItem(1).(*tview.InputField).SetText("")
 		self.Change2LogFrameCall()
+		add_form.SetFocus(0)
 
 	}).AddButton("Clear", func() {
 		add_form.GetFormItem(0).(*tview.InputField).SetText("")
 		add_form.GetFormItem(1).(*tview.InputField).SetText("")
+		add_form.SetFocus(0)
 
 	})
 
