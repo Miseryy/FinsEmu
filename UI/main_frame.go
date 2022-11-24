@@ -175,7 +175,7 @@ func (self *MainFrame) setCallBacks() {
 		log_text := self.child_frames.convinient_frame.log_text_frame.log_text
 		var file *os.File
 		loc := time.FixedZone("Asia/Tokyo", 9*60*60)
-		_log_path := log_path + time.Now().In(loc).Format("2006-01-02_15-04-05") + ".log"
+		_log_path := log_path + time.Now().In(loc).Format("2006-01-02_10-04-05") + ".log"
 		file, err := os.OpenFile(_log_path, os.O_WRONLY|os.O_APPEND, 0755)
 		if err != nil {
 			file, err = os.Create(_log_path)
