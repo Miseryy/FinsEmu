@@ -104,7 +104,7 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				s := fmt.Sprintf("[orange]Recv [%s:%d]:%X[white]", addr.IP, addr.Port, recv_buff)
+				s := fmt.Sprintf("[orange]Recv (%s:%d):%X[white]", addr.IP, addr.Port, recv_buff)
 				command_code := recv_buff[10:12]
 
 				if command_code[0] == 0x01 && command_code[1] == 0x02 {
