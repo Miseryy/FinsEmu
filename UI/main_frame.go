@@ -6,8 +6,8 @@ import (
 	udp "FinsEmu/UDP"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -165,7 +165,7 @@ func (self *MainFrame) setCallBacks() {
 					continue
 				}
 
-				t := fmt.Sprintf("[#00CED1]Send [%s:%d]:%X[white]", addr.IP, addr.Port, send_buff)
+				t := fmt.Sprintf("[#00CED1]Send (%s:%d):%X[white]", addr.IP, addr.Port, send_buff)
 				update_draw(t)
 			}
 		}()
@@ -174,8 +174,10 @@ func (self *MainFrame) setCallBacks() {
 	self.child_frames.command_frame.export_log_callback = func() {
 		log_text := self.child_frames.convinient_frame.log_text_frame.log_text
 		var file *os.File
-		loc := time.FixedZone("Asia/Tokyo", 9*60*60)
-		_log_path := log_path + time.Now().In(loc).Format("2006-01-02_10-04-05") + ".log"
+		t := time.Now()
+
+		time_f := fmt.Sprintf("_%d-%02d-%02d_%02d-%02d-%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+		_log_path := log_path + time_f + ".log"
 		file, err := os.OpenFile(_log_path, os.O_WRONLY|os.O_APPEND, 0755)
 		if err != nil {
 			file, err = os.Create(_log_path)
@@ -187,10 +189,11 @@ func (self *MainFrame) setCallBacks() {
 
 		defer file.Close()
 
-		first_pos := strings.Index(log_text, "]")
-		end_pos := strings.LastIndex(log_text, "[")
+		reg_ex := `\[.*?\]`
+		reg := regexp.MustCompile(reg_ex)
+		reg_log := reg.ReplaceAllString(log_text, "")
 
-		_, err = file.Write([]byte(log_text[first_pos+1 : end_pos]))
+		_, err = file.Write([]byte(reg_log))
 		if err != nil {
 			self.WriteLog("Export Failed", true)
 			return
